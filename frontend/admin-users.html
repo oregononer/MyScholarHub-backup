@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management | ScholarHub Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-light" style="font-family: 'Poppins', sans-serif;">
+
+    <div class="admin-layout-wrapper">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div class="admin-sidebar-header">
+                <img src="https://ui-avatars.com/api/?name=Admin&background=random" class="admin-profile-img" alt="Profile">
+                <div class="admin-profile-name">System Admin</div>
+                <div class="admin-profile-role">Administrator</div>
+            </div>
+            
+            <nav class="flex-grow-1 mt-3">
+                <div class="admin-nav-item">
+                    <a href="admin-dashboard.html" class="admin-nav-link">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </div>
+                <div class="admin-nav-item mt-1">
+                    <a href="admin-moderation.html" class="admin-nav-link">
+                        <i class="bi bi-clipboard-check"></i> Moderation
+                    </a>
+                </div>
+                <div class="admin-nav-item mt-1">
+                    <a href="admin-users.html" class="admin-nav-link active">
+                        <i class="bi bi-people"></i> Users
+                    </a>
+                </div>
+                <div class="admin-nav-item mt-1">
+                    <a href="admin-audit.html" class="admin-nav-link">
+                        <i class="bi bi-journal-text"></i> Audit Log
+                    </a>
+                </div>
+            </nav>
+
+            <div class="p-3 border-top" style="border-color: #f1f5f9 !important;">
+                <a href="index.html" class="admin-nav-link mb-2" style="background: none; border: 1px solid #e2e8f0; justify-content: center;">
+                    <i class="bi bi-house text-primary"></i> <span style="color: #64748b">Back to Portal</span>
+                </a>
+                <button onclick="logout()" class="admin-nav-link w-100 border-0" style="background: #fee2e2; color: #ef4444; justify-content: center;">
+                    <i class="bi bi-box-arrow-left text-danger"></i> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <div class="admin-main-wrapper">
+            <!-- Topbar Header -->
+            <header class="admin-topbar">
+                <div class="admin-brand d-lg-none">
+                    <i class="bi bi-shield-lock-fill" style="color: #3b82f6;"></i>
+                </div>
+                <div class="admin-brand d-none d-lg-flex">
+                    <i class="bi bi-shield-lock-fill" style="color: #3b82f6;"></i> Smart Admin
+                </div>
+                <div class="admin-search-box d-none d-lg-block">
+                    <i class="bi bi-search"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+
+                <div class="admin-top-actions">
+                    <button class="top-icon-btn d-none d-sm-block">
+                        <i class="bi bi-translate"></i> <span style="font-size: 0.85rem; font-weight: 600; margin-left: 3px;">English</span>
+                    </button>
+                    <button class="top-icon-btn">
+                        <i class="bi bi-bell"></i>
+                        <span class="top-badge bg-warning">6</span>
+                    </button>
+                    <button class="top-icon-btn">
+                        <i class="bi bi-envelope"></i>
+                        <span class="top-badge bg-primary">2</span>
+                    </button>
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=random" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; cursor: pointer; margin-left: 10px;" alt="...">
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="admin-content">
+                <div class="admin-page-header">
+                    <div>
+                        <h1 class="admin-page-title">User Management</h1>
+                        <div class="admin-breadcrumb mt-1">
+                            <i class="bi bi-house-door-fill text-muted"></i> <a href="admin-dashboard.html">Home</a> &gt; <span>Users</span>
+                        </div>
+                    </div>
+                    <select id="roleFilter" class="form-select form-select-sm rounded-pill border-1 shadow-sm" style="width: auto; background: #ffffff; color: #334155;" onchange="loadUsers()">
+                        <option value="">All Roles</option>
+                        <option value="APPLICANT">Applicant</option>
+                        <option value="ADMIN">Admin</option>
+                    </select>
+                </div>
+
+                <div class="admin-white-card overflow-hidden p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr class="small text-muted text-uppercase fw-semibold">
+                                    <th class="ps-4 py-3">Username</th>
+                                    <th class="py-3">Email</th>
+                                    <th class="py-3">Role</th>
+                                    <th class="py-3">Status</th>
+                                    <th class="py-3">Registered</th>
+                                    <th class="py-3">Last Login</th>
+                                    <th class="text-end pe-4 py-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody">
+                                <tr><td colspan="7" class="text-center py-4 text-muted">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/config.js"></script>
+    <script>
+        if (!requireAdmin()) { /* redirected */ }
+
+        async function loadUsers() {
+            const tbody = document.getElementById('userTableBody');
+            const role = document.getElementById('roleFilter').value;
+            let url = '/admin/users/';
+            if (role) url += `?role=${role}`;
+
+            try {
+                const resp = await apiFetch(url);
+                const data = await resp.json();
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No users found.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                data.forEach(u => {
+                    const roleBadge = u.role === 'ADMIN'
+                        ? '<span class="badge bg-danger rounded-pill">ADMIN</span>'
+                        : '<span class="badge bg-info rounded-pill">APPLICANT</span>';
+                    const statusBadge = u.is_active
+                        ? '<span class="badge bg-success rounded-pill">Active</span>'
+                        : '<span class="badge bg-secondary rounded-pill">Inactive</span>';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="ps-4 fw-semibold small">${u.username}</td>
+                            <td class="small">${u.email}</td>
+                            <td>${roleBadge}</td>
+                            <td>${statusBadge}</td>
+                            <td class="small">${formatDate(u.date_joined)}</td>
+                            <td class="small">${u.last_login ? formatDate(u.last_login) : 'Never'}</td>
+                            <td class="text-end pe-4">
+                                ${u.role !== 'ADMIN' && u.is_active ? `
+                                    <button onclick="deactivateUser('${u.id}', '${u.username}')" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                        <i class="bi bi-person-x me-1"></i> Deactivate
+                                    </button>
+                                ` : ''}
+                            </td>
+                        </tr>`;
+                });
+            } catch(e) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-danger">Failed to load.</td></tr>';
+            }
+        }
+
+        async function deactivateUser(userId, username) {
+            if (!confirm(`Deactivate user "${username}"? User tidak akan bisa login lagi.`)) return;
+            try {
+                const resp = await apiFetch(`/admin/users/${userId}/deactivate/`, { method: 'POST' });
+                if (resp.ok) {
+                    showToast(`User "${username}" deactivated`, 'success');
+                    loadUsers();
+                } else {
+                    const err = await resp.json();
+                    showToast(err.error || 'Failed', 'error');
+                }
+            } catch(e) { showToast('Error!', 'error'); }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadUsers);
+    </script>
+</body>
+</html>

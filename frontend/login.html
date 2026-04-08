@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | ScholarHub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="auth-bg">
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-10 col-lg-12">
+                <div class="card auth-card">
+                    <div class="row g-0">
+                        <div class="col-md-6 auth-left d-none d-md-flex">
+                            <a href="index.html" class="text-white text-decoration-none mb-5 h4 fw-bold">
+                                <i class="bi bi-mortarboard-fill"></i> ScholarHub
+                            </a>
+                            <h2 class="fw-bold mb-4">Welcome Back!</h2>
+                            <p class="lead mb-0 opacity-75">Login to access your personalized scholarship dashboard, track your applications, and discover new opportunities.</p>
+                        </div>
+                        
+                        <div class="col-md-6 auth-right">
+                            <div class="text-center mb-5">
+                                <h3 class="fw-bold text-dark">Sign In</h3>
+                                <p class="text-muted small">Please enter your credentials to continue</p>
+                            </div>
+                            
+                            <form id="loginForm">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small fw-semibold">Username</label>
+                                    <input type="text" class="form-control form-control-custom" id="loginUsername" placeholder="Enter your username" required>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between">
+                                        <label class="form-label text-muted small fw-semibold">Password</label>
+                                        <a href="forgot-password.html" class="small text-decoration-none" style="color: #7b2cbf;">Forgot Password?</a>
+                                    </div>
+                                    <input type="password" class="form-control form-control-custom" id="loginPassword" placeholder="Enter your password" required>
+                                </div>
+                                <div id="loginError" class="alert alert-danger small d-none"></div>
+                                <button type="submit" id="loginSubmitBtn" class="btn btn-auth w-100 mb-4">
+                                    <span id="loginBtnText">Sign In</span>
+                                    <span id="loginSpinner" class="spinner-border spinner-border-sm d-none ms-2"></span>
+                                </button>
+                            </form>
+                            
+                            <div class="text-center text-muted small">
+                                Don't have an account? <a href="register.html" class="text-decoration-none fw-bold" style="color: #7b2cbf;">Create an account</a>
+                            </div>
+                            <div class="text-center mt-3">
+                                <a href="index.html" class="small text-decoration-none text-muted"><i class="bi bi-arrow-left"></i> Back to Home</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/config.js"></script>
+    <script>
+        // Jika sudah login, redirect ke dashboard
+        if (isLoggedIn()) {
+            window.location.href = isAdmin() ? 'admin-dashboard.html' : 'dashboard.html';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            const btn = document.getElementById('loginSubmitBtn');
+            const btnText = document.getElementById('loginBtnText');
+            const spinner = document.getElementById('loginSpinner');
+
+            if (!username || !password) {
+                errorDiv.textContent = 'Isi username dan password!';
+                errorDiv.classList.remove('d-none');
+                return;
+            }
+
+            // Loading state
+            btn.disabled = true;
+            btnText.textContent = 'Signing in...';
+            spinner.classList.remove('d-none');
+            errorDiv.classList.add('d-none');
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    saveAuthData(data);
+                    showToast('Login berhasil! Redirecting...', 'success');
+                    
+                    setTimeout(() => {
+                        if (data.role === 'ADMIN') {
+                            window.location.href = 'admin-dashboard.html';
+                        } else {
+                            window.location.href = 'dashboard.html';
+                        }
+                    }, 500);
+                } else if (response.status === 429) {
+                    errorDiv.textContent = data.detail || 'Akun terkunci. Coba lagi dalam 15 menit.';
+                    errorDiv.classList.remove('d-none');
+                } else {
+                    errorDiv.textContent = data.detail || 'Username atau password salah!';
+                    errorDiv.classList.remove('d-none');
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Tidak dapat terhubung ke server!';
+                errorDiv.classList.remove('d-none');
+            } finally {
+                btn.disabled = false;
+                btnText.textContent = 'Sign In';
+                spinner.classList.add('d-none');
+            }
+        });
+    </script>
+</body>
+</html>

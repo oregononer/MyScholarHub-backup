@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moderation Queue | ScholarHub Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-light" style="font-family: 'Poppins', sans-serif;">
+
+    <div class="admin-layout-wrapper">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div class="admin-sidebar-header">
+                <img src="https://ui-avatars.com/api/?name=Admin&background=random" class="admin-profile-img" alt="Profile">
+                <div class="admin-profile-name">System Admin</div>
+                <div class="admin-profile-role">Administrator</div>
+            </div>
+            
+            <nav class="flex-grow-1 mt-3">
+                <div class="admin-nav-item">
+                    <a href="admin-dashboard.html" class="admin-nav-link">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </div>
+                <div class="admin-nav-item mt-1">
+                    <a href="admin-moderation.html" class="admin-nav-link active">
+                        <i class="bi bi-clipboard-check"></i> Moderation
+                    </a>
+                </div>
+                <div class="admin-nav-item mt-1">
+                    <a href="admin-users.html" class="admin-nav-link">
+                        <i class="bi bi-people"></i> Users
+                    </a>
+                </div>
+                <div class="admin-nav-item mt-1">
+                    <a href="admin-audit.html" class="admin-nav-link">
+                        <i class="bi bi-journal-text"></i> Audit Log
+                    </a>
+                </div>
+            </nav>
+
+            <div class="p-3 border-top" style="border-color: #f1f5f9 !important;">
+                <a href="index.html" class="admin-nav-link mb-2" style="background: none; border: 1px solid #e2e8f0; justify-content: center;">
+                    <i class="bi bi-house text-primary"></i> <span style="color: #64748b">Back to Portal</span>
+                </a>
+                <button onclick="logout()" class="admin-nav-link w-100 border-0" style="background: #fee2e2; color: #ef4444; justify-content: center;">
+                    <i class="bi bi-box-arrow-left text-danger"></i> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <div class="admin-main-wrapper">
+            <!-- Topbar Header -->
+            <header class="admin-topbar">
+                <div class="admin-brand d-lg-none">
+                    <i class="bi bi-shield-lock-fill" style="color: #3b82f6;"></i>
+                </div>
+                <div class="admin-brand d-none d-lg-flex">
+                    <i class="bi bi-shield-lock-fill" style="color: #3b82f6;"></i> Smart Admin
+                </div>
+                <div class="admin-search-box d-none d-lg-block">
+                    <i class="bi bi-search"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+
+                <div class="admin-top-actions">
+                    <button class="top-icon-btn d-none d-sm-block">
+                        <i class="bi bi-translate"></i> <span style="font-size: 0.85rem; font-weight: 600; margin-left: 3px;">English</span>
+                    </button>
+                    <button class="top-icon-btn">
+                        <i class="bi bi-bell"></i>
+                        <span class="top-badge bg-warning">6</span>
+                    </button>
+                    <button class="top-icon-btn">
+                        <i class="bi bi-envelope"></i>
+                        <span class="top-badge bg-primary">2</span>
+                    </button>
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=random" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; cursor: pointer; margin-left: 10px;" alt="...">
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="admin-content">
+                <div class="admin-page-header">
+                    <div>
+                        <h1 class="admin-page-title">Moderation Queue</h1>
+                        <div class="admin-breadcrumb mt-1">
+                            <i class="bi bi-house-door-fill text-muted"></i> <a href="admin-dashboard.html">Home</a> &gt; <span>Moderation</span>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <select id="statusFilter" class="form-select form-select-sm rounded-pill border-1 shadow-sm" style="width: auto; background: #ffffff; color: #334155;" onchange="loadScholarships()">
+                            <option value="PENDING">Pending</option>
+                            <option value="PUBLISHED">Published</option>
+                            <option value="REJECTED">Rejected</option>
+                            <option value="DRAFT">Draft</option>
+                            <option value="">All Status</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="scholarshipTable" class="admin-white-card overflow-hidden p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr class="small text-muted text-uppercase fw-semibold">
+                                    <th class="ps-4 py-3">Title</th>
+                                    <th class="py-3">Provider</th>
+                                    <th class="py-3">Category</th>
+                                    <th class="py-3">Status</th>
+                                    <th class="py-3">Deadline</th>
+                                    <th class="text-end pe-4 py-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                                <tr><td colspan="6" class="text-center py-4 text-muted">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+
+        </div>
+    </div> <!-- Close admin-layout-wrapper -->
+
+    <!-- Reject Modal -->
+    <div class="modal fade" id="rejectModal" tabindex="-1" style="z-index: 1060;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow" style="background: #ffffff; color: #334155;">
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-x-circle me-2 text-danger"></i>Reject Scholarship</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <label class="form-label small fw-semibold">Alasan Penolakan *</label>
+                    <textarea id="rejectReason" class="form-control" rows="3" style="background: #f8fafc; color: #334155; border-color: #e2e8f0;" placeholder="Jelaskan alasan penolakan..."></textarea>
+                </div>
+                <div class="modal-footer border-top">
+                    <button type="button" class="btn btn-light btn-sm rounded-pill border" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" onclick="confirmReject()" class="btn btn-danger btn-sm rounded-pill px-4">Reject</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Detail Modal -->
+    <div class="modal fade" id="reviewModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content rounded-4 border-0 shadow" style="background: #ffffff; color: #334155;">
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-file-earmark-text me-2 text-primary"></i>Review Submission</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="reviewModalBody">
+                    <div class="text-center py-4"><div class="spinner-border text-primary"></div></div>
+                </div>
+                <div class="modal-footer border-top" id="reviewModalFooter">
+                    <!-- Buttons will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/config.js"></script>
+    <script>
+        if (!requireAdmin()) { /* redirected */ }
+
+        let rejectTargetId = null;
+
+        async function loadScholarships() {
+            const tbody = document.getElementById('tableBody');
+            const statusFilter = document.getElementById('statusFilter').value;
+            let url = '/admin/scholarships/';
+            if (statusFilter) url += `?status=${statusFilter}`;
+
+            try {
+                const resp = await apiFetch(url);
+                const data = await resp.json();
+                const results = data.results || data;
+
+                if (results.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Tidak ada data.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                results.forEach(s => {
+                    const statusBadge = `<span class="badge ${getStatusBadgeClass(s.status)} rounded-pill">${s.status}</span>`;
+                    const isPending = s.status === 'PENDING';
+                    const isPublished = s.status === 'PUBLISHED';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="ps-4">
+                                <div class="fw-semibold small">${s.title}</div>
+                                <div class="small text-muted">${s.provider_email || ''}</div>
+                            </td>
+                            <td class="small">${s.provider_name}</td>
+                            <td class="small">${s.category_name || '-'}</td>
+                            <td>${statusBadge}</td>
+                            <td class="small">${formatDate(s.deadline)}</td>
+                            <td class="text-end pe-4">
+                                ${isPending ? `
+                                    <button onclick="openReview('${s.slug}', '${s.id}')" class="btn btn-primary btn-sm rounded-pill px-3 me-1" title="Review">
+                                        <i class="bi bi-eye"></i> Review
+                                    </button>
+                                ` : ''}
+                                ${isPublished ? `
+                                    <button onclick="takedownScholarship('${s.id}')" class="btn btn-outline-warning btn-sm rounded-pill px-3" title="Takedown">
+                                        <i class="bi bi-pause-circle"></i> Takedown
+                                    </button>
+                                ` : ''}
+                            </td>
+                        </tr>`;
+                });
+            } catch(e) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-danger">Failed to load.</td></tr>';
+            }
+        }
+
+        async function approveScholarship(id) {
+            if (!confirm('Approve beasiswa ini?')) return;
+            try {
+                const resp = await apiFetch(`/admin/scholarships/${id}/approve/`, { method: 'POST' });
+                const data = await resp.json();
+                if (resp.ok) {
+                    showToast(`Approved! Link check: ${data.link_check}`, 'success');
+                    const reviewMod = bootstrap.Modal.getInstance(document.getElementById('reviewModal'));
+                    if (reviewMod) reviewMod.hide();
+                    loadScholarships();
+                } else {
+                    showToast(data.error || 'Gagal approve', 'error');
+                }
+            } catch(e) { showToast('Error!', 'error'); }
+        }
+
+        function openReject(id) {
+            rejectTargetId = id;
+            document.getElementById('rejectReason').value = '';
+            const reviewMod = bootstrap.Modal.getInstance(document.getElementById('reviewModal'));
+            if (reviewMod) reviewMod.hide();
+            new bootstrap.Modal(document.getElementById('rejectModal')).show();
+        }
+
+        async function openReview(slug, id) {
+            new bootstrap.Modal(document.getElementById('reviewModal')).show();
+            const body = document.getElementById('reviewModalBody');
+            const footer = document.getElementById('reviewModalFooter');
+
+            try {
+                const resp = await apiFetch(`/admin/scholarships/${id}/`);
+                const s = await resp.json();
+
+                body.innerHTML = `
+                    <div class="d-flex align-items-start gap-3 mb-4">
+                        ${s.poster ? `<img src="${s.poster}" class="rounded" style="width: 80px; height: 80px; object-fit: cover;">` : '<div class="rounded bg-secondary d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;"><i class="bi bi-image text-white fs-3"></i></div>'}
+                        <div>
+                            <h5 class="fw-bold mb-1">${s.title}</h5>
+                            <div class="small text-muted mb-1"><i class="bi bi-building"></i> ${s.provider_name} | <i class="bi bi-envelope"></i> ${s.provider_email}</div>
+                            <span class="badge bg-secondary">${s.category_name || '-'}</span>
+                            <span class="badge bg-info text-dark">${getCoverageLabel(s.coverage_type)}</span>
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-4 small">
+                        <div class="col-6"><strong>Education Level:</strong><br>${s.education_level || 'Semua'}</div>
+                        <div class="col-6"><strong>Deadline:</strong><br>${formatDate(s.deadline)}</div>
+                        <div class="col-12"><strong>External Link:</strong><br><a href="${s.external_link}" target="_blank" class="text-info">${s.external_link}</a></div>
+                    </div>
+                    <div class="mb-4">
+                        <strong class="d-block mb-2">Description:</strong>
+                        <div class="p-3 rounded small" style="background: #0f172a; border: 1px solid #475569;">${s.description}</div>
+                    </div>
+                    <div>
+                        <strong class="d-block mb-2">Requirements:</strong>
+                        <div class="p-3 rounded small" style="background: #0f172a; border: 1px solid #475569;">${s.requirements || '-'}</div>
+                    </div>
+                `;
+
+                footer.innerHTML = `
+                    <button type="button" class="btn btn-outline-light btn-sm rounded-pill" data-bs-dismiss="modal">Close</button>
+                    <button onclick="approveScholarship('${id}')" class="btn btn-success btn-sm rounded-pill px-4">Approve</button>
+                    <button onclick="openReject('${id}')" class="btn btn-danger btn-sm rounded-pill px-4">Reject</button>
+                `;
+            } catch(e) {
+                body.innerHTML = '<div class="text-danger p-3">Failed to load details.</div>';
+            }
+        }
+
+        async function confirmReject() {
+            const reason = document.getElementById('rejectReason').value;
+            if (!reason) { showToast('Alasan wajib diisi!', 'warning'); return; }
+
+            try {
+                const resp = await apiFetch(`/admin/scholarships/${rejectTargetId}/reject/`, {
+                    method: 'POST',
+                    body: JSON.stringify({ rejection_reason: reason })
+                });
+                if (resp.ok) {
+                    showToast('Beasiswa ditolak', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('rejectModal')).hide();
+                    loadScholarships();
+                }
+            } catch(e) { showToast('Error!', 'error'); }
+        }
+
+        async function takedownScholarship(id) {
+            if (!confirm('Takedown beasiswa ini? Status akan diubah ke DRAFT.')) return;
+            try {
+                const resp = await apiFetch(`/admin/scholarships/${id}/takedown/`, { method: 'POST' });
+                if (resp.ok) {
+                    showToast('Beasiswa di-takedown', 'success');
+                    loadScholarships();
+                }
+            } catch(e) { showToast('Error!', 'error'); }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadScholarships);
+    </script>
+</body>
+</html>

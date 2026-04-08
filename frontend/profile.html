@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | ScholarHub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body style="background-color: #f8f9fc; font-family: 'Poppins', sans-serif;">
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html"><i class="bi bi-mortarboard-fill" style="color: #7b2cbf;"></i> ScholarHub</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="dashboard.html">Scholarships</a></li>
+                    <li class="nav-item"><a class="nav-link" href="bookmarks.html">Bookmarks</a></li>
+                    <li class="nav-item ms-lg-3 border-start border-secondary-subtle ps-lg-3"><a class="nav-link text-warning fw-bold" href="promote.html"><i class="bi bi-megaphone-fill me-1"></i> For Providers: Promote</a></li>
+                    <li class="nav-item"><a class="nav-link" href="my-promotions.html">My Promotions</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold" style="color: #7b2cbf;" href="profile.html">Profile</a></li>
+                    <li class="nav-item ms-2"><button onclick="logout()" class="btn btn-outline-danger btn-sm rounded-pill px-3"><i class="bi bi-box-arrow-right"></i> Logout</button></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-5" style="max-width: 800px;">
+        <h2 class="fw-bold mb-2">My Profile</h2>
+        <p class="text-muted mb-4">Kelola informasi akun dan profil kamu.</p>
+
+        <!-- Personal Info -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+            <h5 class="fw-bold mb-4"><i class="bi bi-person-circle me-2" style="color: #7b2cbf;"></i>Personal Info</h5>
+            <form id="profileForm">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold text-muted">Username</label>
+                        <input type="text" id="profileUsername" class="form-control form-control-custom" placeholder="Loading...">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold text-muted">Email</label>
+                        <input type="email" id="profileEmail" class="form-control form-control-custom" disabled>
+                        <div class="form-text small">Email dikelola oleh sistem.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold text-muted">Nama Lengkap</label>
+                        <input type="text" id="profileFullName" class="form-control form-control-custom" placeholder="Nama lengkap">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold text-muted">Jenjang Pendidikan</label>
+                        <select id="profileEducation" class="form-select form-control-custom">
+                            <option value="">Pilih jenjang</option>
+                            <option value="SMA/SMK">SMA/SMK</option>
+                            <option value="D3">D3</option>
+                            <option value="D4/S1">D4/S1</option>
+                            <option value="S2">S2</option>
+                            <option value="S3">S3</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold text-muted">Institusi Saat Ini</label>
+                        <input type="text" id="profileInstitution" class="form-control form-control-custom" placeholder="Nama universitas/sekolah">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold text-muted">Jurusan</label>
+                        <input type="text" id="profileMajor" class="form-control form-control-custom" placeholder="Jurusan/program studi">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-auth rounded-pill px-4">
+                        <i class="bi bi-check-lg me-1"></i> Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Change Password -->
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h5 class="fw-bold mb-4"><i class="bi bi-shield-lock me-2 text-danger"></i>Change Password</h5>
+            <form id="passwordForm">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold text-muted">Password Lama</label>
+                        <input type="password" id="oldPassword" class="form-control form-control-custom" placeholder="••••••••" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold text-muted">Password Baru</label>
+                        <input type="password" id="newPassword" class="form-control form-control-custom" placeholder="Min 8 karakter" required minlength="8">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold text-muted">Konfirmasi</label>
+                        <input type="password" id="confirmPassword" class="form-control form-control-custom" placeholder="Ulangi password" required>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-outline-danger rounded-pill px-4">
+                        <i class="bi bi-key me-1"></i> Ganti Password
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/config.js"></script>
+    <script>
+        if (!requireAuth()) { /* redirected */ }
+
+        async function loadProfile() {
+            try {
+                const resp = await apiFetch('/me/profile/');
+                if (!resp.ok) throw new Error('Unauthorized');
+                const data = await resp.json();
+
+                document.getElementById('profileUsername').value = data.username || '';
+                document.getElementById('profileEmail').value = data.email || '';
+                document.getElementById('profileFullName').value = data.full_name || '';
+                document.getElementById('profileEducation').value = data.education_level || '';
+                document.getElementById('profileInstitution').value = data.current_institution || '';
+                document.getElementById('profileMajor').value = data.major || '';
+            } catch(e) {
+                showToast('Gagal memuat profil', 'error');
+            }
+        }
+
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            try {
+                const resp = await apiFetch('/me/profile/update/', {
+                    method: 'PATCH',
+                    body: JSON.stringify({
+                        username: document.getElementById('profileUsername').value,
+                        full_name: document.getElementById('profileFullName').value,
+                        education_level: document.getElementById('profileEducation').value,
+                        current_institution: document.getElementById('profileInstitution').value,
+                        major: document.getElementById('profileMajor').value,
+                    })
+                });
+                if (resp.ok) {
+                    showToast('Profil berhasil diperbarui!', 'success');
+                } else {
+                    const err = await resp.json();
+                    showToast(err.error || 'Gagal update profil', 'error');
+                }
+            } catch(e) {
+                showToast('Error koneksi!', 'error');
+            }
+        });
+
+        document.getElementById('passwordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const oldPass = document.getElementById('oldPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirmPass = document.getElementById('confirmPassword').value;
+
+            if (newPass !== confirmPass) {
+                showToast('Password baru dan konfirmasi tidak cocok!', 'error');
+                return;
+            }
+
+            try {
+                const resp = await apiFetch('/me/change-password/', {
+                    method: 'POST',
+                    body: JSON.stringify({ old_password: oldPass, new_password: newPass })
+                });
+                if (resp.ok) {
+                    showToast('Password berhasil diganti! Silakan login ulang.', 'success');
+                    setTimeout(logout, 2000);
+                } else {
+                    const err = await resp.json();
+                    const msg = err.old_password ? err.old_password.join(' ') : (err.new_password ? err.new_password.join(' ') : 'Gagal ganti password');
+                    showToast(msg, 'error');
+                }
+            } catch(e) {
+                showToast('Error koneksi!', 'error');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', loadProfile);
+    </script>
+</body>
+</html>

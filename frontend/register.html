@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | ScholarHub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="auth-bg">
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-10 col-lg-12">
+                <div class="card auth-card">
+                    <div class="row g-0">
+                        <div class="col-md-6 auth-left d-none d-md-flex">
+                            <a href="index.html" class="text-white text-decoration-none mb-5 h4 fw-bold">
+                                <i class="bi bi-mortarboard-fill"></i> ScholarHub
+                            </a>
+                            <h2 class="fw-bold mb-4">Start Your Journey</h2>
+                            <p class="lead mb-0 opacity-75">Create an account to unlock hundreds of scholarship opportunities and take the first step toward your bright future.</p>
+                        </div>
+                        
+                        <div class="col-md-6 auth-right">
+                            <div class="text-center mb-4">
+                                <h3 class="fw-bold text-dark">Create Account</h3>
+                                <p class="text-muted small">Join our community of scholars today</p>
+                            </div>
+                            
+                            <form id="registerForm">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small fw-semibold">Username</label>
+                                    <input type="text" class="form-control form-control-custom" id="regUsername" placeholder="Choose a username" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small fw-semibold">Email Address</label>
+                                    <input type="email" class="form-control form-control-custom" id="regEmail" placeholder="name@example.com" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label text-muted small fw-semibold">Password</label>
+                                    <input type="password" class="form-control form-control-custom" id="regPassword" placeholder="Create a strong password (min 8 chars)" required minlength="8">
+                                    <div class="form-text small">Minimal 8 karakter, tidak boleh terlalu umum.</div>
+                                </div>
+                                <div id="registerError" class="alert alert-danger small d-none"></div>
+                                <button type="submit" class="btn btn-auth w-100 mb-4" id="registerBtn">
+                                    <span id="regBtnText">Register</span>
+                                    <span id="regSpinner" class="spinner-border spinner-border-sm d-none ms-2"></span>
+                                </button>
+                            </form>
+                            
+                            <div class="text-center text-muted small">
+                                Already have an account? <a href="login.html" class="text-decoration-none fw-bold" style="color: #7b2cbf;">Sign In here</a>
+                            </div>
+                            <div class="text-center mt-3">
+                                <a href="index.html" class="small text-decoration-none text-muted"><i class="bi bi-arrow-left"></i> Back to Home</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/config.js"></script>
+    <script>
+        if (isLoggedIn()) window.location.href = 'dashboard.html';
+
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const errorDiv = document.getElementById('registerError');
+            const btn = document.getElementById('registerBtn');
+
+            btn.disabled = true;
+            document.getElementById('regBtnText').textContent = 'Registering...';
+            document.getElementById('regSpinner').classList.remove('d-none');
+            errorDiv.classList.add('d-none');
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/register/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showToast('Registrasi berhasil! Silakan login.', 'success');
+                    setTimeout(() => window.location.href = 'login.html', 1000);
+                } else {
+                    let errorMsg = '';
+                    if (typeof data === 'object') {
+                        errorMsg = Object.values(data).flat().join(' ');
+                    } else {
+                        errorMsg = data.detail || 'Registrasi gagal.';
+                    }
+                    errorDiv.textContent = errorMsg;
+                    errorDiv.classList.remove('d-none');
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Tidak dapat terhubung ke server!';
+                errorDiv.classList.remove('d-none');
+            } finally {
+                btn.disabled = false;
+                document.getElementById('regBtnText').textContent = 'Register';
+                document.getElementById('regSpinner').classList.add('d-none');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vault
+  namespace: scholarhub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vault
+  template:
+    metadata:
+      labels:
+        app: vault
+    spec:
+      containers:
+      - name: vault
+        image: hashicorp/vault:1.13.3
+        ports:
+        - containerPort: 8200
+        # Menjalankan dalam mode dev agar setup awal lebih cepat
+        # Root token kita set fix agar mudah diakses saat konfigurasi awal
+        env:
+        - name: VAULT_DEV_ROOT_TOKEN_ID
+          value: "root-token-scholarhub-local"
+        - name: VAULT_DEV_LISTEN_ADDRESS
+          value: "0.0.0.0:8200"
+        securityContext:
+          capabilities:
+            add: ["IPC_LOCK"] # Diperlukan Vault untuk mengunci memori
+
+---
+# --- VAULT SERVICE ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault
+  namespace: scholarhub
+spec:
+  selector:
+    app: vault
+  ports:
+  - port: 8200
+    targetPort: 8200

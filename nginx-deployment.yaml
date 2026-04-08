@@ -1,0 +1,151 @@
+# === NGINX CONFIGMAP ===
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: scholarhub
+data:
+  default.conf: |
+    upstream django {
+        server scholarhub-backend.scholarhub.svc.cluster.local:8000;
+    }
+
+    server {
+        listen 80;
+        server_name scholarhub.example.com;
+        
+        # === SECURITY HEADERS (Wajib sesuai spec) ===
+        add_header X-Frame-Options "DENY" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-XSS-Protection "1; mode=block" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: https:;" always;
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+        add_header Permissions-Policy "camera=(), microphone=(), geolocation=()";
+        
+        # Blokir informasi server
+        server_tokens off;
+        
+        # Limit request body (anti upload DoS)
+        client_max_body_size 10m;
+        
+        # === ADMIN PORTAL SEGREGATION (VLAN RESTRICTION) ===
+        # UNCOMMENT SAAT DEPLOY PRODUKSI UNTUK RESTRICT AKSES ADMIN KE VLAN SAJA
+        # location /admin-login.html {
+        #     allow 192.168.10.0/24; # Ganti dengan IP subnet VLAN internal SOC Admin
+        #     allow 10.0.0.0/8;      # Node K8s Internal
+        #     deny all;              # Blokir semua akses internet!
+        #     root /usr/share/nginx/html;
+        # }
+        #
+        # location /api/admin/ {
+        #     allow 192.168.10.0/24; 
+        #     allow 10.0.0.0/8;
+        #     deny all;
+        #     proxy_pass http://django;
+        #     proxy_set_header Host $host;
+        #     proxy_set_header X-Real-IP $remote_addr;
+        # }
+        
+        # Frontend static files
+        location / {
+            root /usr/share/nginx/html;
+            index index.html;
+            try_files $uri $uri/ /index.html;
+        }
+        
+        # Proxy API ke Django backend
+        location /api/ {
+            proxy_pass http://django;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            
+            # Timeout settings
+            proxy_connect_timeout 10s;
+            proxy_read_timeout 30s;
+            proxy_send_timeout 30s;
+        }
+        
+        # Proxy Django admin
+        location /django-admin/ {
+            proxy_pass http://django;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        
+        # Static files dari Django (collectstatic)
+        location /static/ {
+            alias /usr/share/nginx/html/static/;
+        }
+        
+        # Media files
+        location /media/ {
+            alias /usr/share/nginx/html/media/;
+        }
+    }
+
+---
+# === NGINX DEPLOYMENT ===
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: scholarhub
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.25-alpine
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d/default.conf
+          subPath: default.conf
+        - name: frontend-files
+          mountPath: /usr/share/nginx/html
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-config
+      - name: frontend-files
+        emptyDir: {}  # Di-populate via initContainer atau ConfigMap
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  namespace: scholarhub
+spec:
+  type: LoadBalancer
+  selector:
+    app: nginx
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | ScholarHub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-light" style="font-family: 'Poppins', sans-serif;">
+
+    <div class="admin-layout-wrapper">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div class="admin-sidebar-header">
+                <img src="https://ui-avatars.com/api/?name=Admin&background=random" class="admin-profile-img" alt="Profile">
+                <div class="admin-profile-name">System Admin</div>
+                <div class="admin-profile-role">Administrator</div>
+            </div>
+            
+            <nav class="flex-grow-1 mt-3">
+                <div class="admin-nav-item">
+                    <a href="admin-dashboard.html" class="admin-nav-link active">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </div>
+                <div class="admin-nav-item mt-1">
+                    <a href="admin-moderation.html" class="admin-nav-link">
+                        <i class="bi bi-clipboard-check"></i> Moderation
+                    </a>
+                </div>
+                <div class="admin-nav-item mt-1">
+                    <a href="admin-users.html" class="admin-nav-link">
+                        <i class="bi bi-people"></i> Users
+                    </a>
+                </div>
+                <div class="admin-nav-item mt-1">
+                    <a href="admin-audit.html" class="admin-nav-link">
+                        <i class="bi bi-journal-text"></i> Audit Log
+                    </a>
+                </div>
+            </nav>
+
+            <div class="p-3 border-top" style="border-color: #f1f5f9 !important;">
+                <a href="index.html" class="admin-nav-link mb-2" style="background: none; border: 1px solid #e2e8f0; justify-content: center;">
+                    <i class="bi bi-house text-primary"></i> <span style="color: #64748b">Back to Portal</span>
+                </a>
+                <button onclick="logout()" class="admin-nav-link w-100 border-0" style="background: #fee2e2; color: #ef4444; justify-content: center;">
+                    <i class="bi bi-box-arrow-left text-danger"></i> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <div class="admin-main-wrapper">
+            <!-- Topbar Header -->
+            <header class="admin-topbar">
+                <div class="admin-brand d-lg-none">
+                    <i class="bi bi-shield-lock-fill" style="color: #3b82f6;"></i>
+                </div>
+                <div class="admin-brand d-none d-lg-flex">
+                    <i class="bi bi-shield-lock-fill" style="color: #3b82f6;"></i> Smart Admin
+                </div>
+                <!-- Search Box -->
+                <div class="admin-search-box d-none d-lg-block">
+                    <i class="bi bi-search"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+
+                <div class="admin-top-actions">
+                    <!-- Translate Icon -->
+                    <button class="top-icon-btn d-none d-sm-block">
+                        <i class="bi bi-translate"></i> <span style="font-size: 0.85rem; font-weight: 600; margin-left: 3px;">English</span>
+                    </button>
+                    <!-- Bell Icon -->
+                    <button class="top-icon-btn">
+                        <i class="bi bi-bell"></i>
+                        <span class="top-badge bg-warning">6</span>
+                    </button>
+                    <!-- Message Icon -->
+                    <button class="top-icon-btn">
+                        <i class="bi bi-envelope"></i>
+                        <span class="top-badge bg-primary">2</span>
+                    </button>
+                    <!-- Profile badge -->
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=random" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; cursor: pointer; margin-left: 10px;" alt="...">
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="admin-content">
+                <div class="admin-page-header">
+                    <h1 class="admin-page-title">Dashboard</h1>
+                    <div class="admin-breadcrumb">
+                        <i class="bi bi-house-door-fill text-muted"></i> <a href="#">Home</a> &gt; <span>Dashboard</span>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row g-4 mb-4" id="statsRow">
+                    <div class="col-md-3">
+                        <div class="metric-card-box grad-purple">
+                            <i class="bi bi-check-circle-fill bg-icon"></i>
+                            <div class="metric-val" id="statPublished">-</div>
+                            <div class="metric-label">Published Scholarships</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card-box grad-green">
+                            <i class="bi bi-hourglass-split bg-icon"></i>
+                            <div class="metric-val" id="statPending">-</div>
+                            <div class="metric-label">Pending Review</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card-box grad-pink">
+                            <i class="bi bi-people-fill bg-icon"></i>
+                            <div class="metric-val" id="statApplicants">-</div>
+                            <div class="metric-label">Applicants</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card-box grad-orange">
+                            <i class="bi bi-shield-exclamation bg-icon"></i>
+                            <div class="metric-val" id="statAnomalies">-</div>
+                            <div class="metric-label">Security Anomalies</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Pending Moderation Queue -->
+                    <div class="col-lg-7">
+                        <div class="admin-white-card h-100">
+                            <div class="admin-card-header">
+                                <span><i class="bi bi-clipboard-check me-2 text-warning"></i>Pending Moderation</span>
+                                <a href="admin-moderation.html" class="btn btn-sm btn-light rounded-pill border shadow-sm px-3">View All</a>
+                            </div>
+                            <div id="pendingList">
+                                <p class="text-muted small">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Audit Logs -->
+                    <div class="col-lg-5">
+                        <div class="admin-white-card h-100">
+                            <div class="admin-card-header">
+                                <span><i class="bi bi-journal-text me-2 text-primary"></i>Recent Activity</span>
+                                <a href="admin-audit.html" class="btn btn-sm btn-light rounded-pill border shadow-sm px-3">View All</a>
+                            </div>
+                            <div id="recentLogs">
+                                <p class="text-muted small">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/config.js"></script>
+    <script>
+        if (!requireAdmin()) { /* redirected */ }
+
+        async function loadStats() {
+            try {
+                const resp = await apiFetch('/admin/stats/');
+                const data = await resp.json();
+                document.getElementById('statPublished').textContent = data.total_published;
+                document.getElementById('statPending').textContent = data.total_pending;
+                document.getElementById('statApplicants').textContent = data.total_applicants;
+                document.getElementById('statAnomalies').textContent = data.recent_anomalies;
+            } catch(e) { console.error('Stats load failed'); }
+        }
+
+        async function loadPending() {
+            const list = document.getElementById('pendingList');
+            try {
+                const resp = await apiFetch('/admin/scholarships/?status=PENDING');
+                const data = await resp.json();
+                const results = data.results || data;
+
+                if (results.length === 0) {
+                    list.innerHTML = '<p class="text-muted small text-center py-3">Tidak ada pengajuan pending.</p>';
+                    return;
+                }
+
+                list.innerHTML = '';
+                results.slice(0, 5).forEach(s => {
+                    list.innerHTML += `
+                        <div class="d-flex justify-content-between align-items-center p-3 rounded-3 mb-2" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                            <div>
+                                <h6 class="fw-bold mb-1 small text-dark">${s.title}</h6>
+                                <span class="small text-muted">${s.provider_name} · ${formatDate(s.created_at)}</span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button onclick="quickApprove('${s.id}')" class="btn btn-sm btn-success rounded-pill px-3 shadow-sm" title="Approve">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                                <a href="admin-moderation.html" class="btn btn-sm btn-outline-primary rounded-pill px-3" title="Review">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </div>
+                        </div>`;
+                });
+            } catch(e) {
+                list.innerHTML = '<p class="text-danger small">Failed to load.</p>';
+            }
+        }
+
+        async function loadRecentLogs() {
+            const list = document.getElementById('recentLogs');
+            try {
+                const resp = await apiFetch('/admin/audit-logs/?limit=8');
+                const data = await resp.json();
+
+                list.innerHTML = '';
+                data.forEach(log => {
+                    const statusColor = log.action_status === 'SUCCESS' ? '#34d399' : (log.action_status === 'BLOCKED' ? '#f87171' : '#fbbf24');
+                    list.innerHTML += `
+                        <div class="d-flex align-items-center gap-3 p-2 border-bottom">
+                            <div class="rounded-circle" style="width: 10px; height: 10px; background: ${statusColor}; flex-shrink: 0;"></div>
+                            <div class="flex-grow-1">
+                                <span class="small fw-semibold text-dark">${log.action_type}</span>
+                                <span class="small text-muted d-block">${log.user || 'Guest'} · ${new Date(log.created_at).toLocaleString('id-ID')}</span>
+                            </div>
+                        </div>`;
+                });
+            } catch(e) {
+                list.innerHTML = '<p class="text-danger small">Failed to load.</p>';
+            }
+        }
+
+        async function quickApprove(id) {
+            if (!confirm('Approve beasiswa ini?')) return;
+            try {
+                const resp = await apiFetch(`/admin/scholarships/${id}/approve/`, { method: 'POST' });
+                if (resp.ok) {
+                    showToast('Beasiswa berhasil di-approve!', 'success');
+                    loadPending();
+                    loadStats();
+                }
+            } catch(e) {
+                showToast('Gagal approve', 'error');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStats();
+            loadPending();
+            loadRecentLogs();
+        });
+    </script>
+</body>
+</html>

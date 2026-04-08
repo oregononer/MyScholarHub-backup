@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | ScholarHub </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        /* Light enterprise styles for admin login */
+        body { background: #f3f4f6; font-family: 'Poppins', sans-serif; color: #334155; height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .admin-login-card { background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; padding: 40px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .form-control-light { background: #f8fafc; border: 1px solid #cbd5e1; color: #334155; }
+        .form-control-light:focus { background: #ffffff; border-color: #3b82f6; color: #334155; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+        .input-group-text-light { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; border-right: 0; }
+        .form-control-light { border-left: 0; }
+    </style>
+</head>
+<body>
+
+    <div class="admin-login-card">
+        <div class="text-center mb-4">
+            <i class="bi bi-shield-lock-fill" style="font-size: 3rem; color: #3b82f6;"></i>
+            <h3 class="fw-bold mt-2 mb-1" style="color: #1e293b;">System Admin</h3>
+            <p class="text-muted small">Secure Control Plane Access</p>
+        </div>
+
+        <form id="adminLoginForm">
+            <div class="mb-3">
+                <label class="form-label small fw-semibold text-secondary">Admin Username / Email</label>
+                <div class="input-group">
+                    <span class="input-group-text input-group-text-light"><i class="bi bi-person"></i></span>
+                    <input type="text" class="form-control form-control-light" id="username" required placeholder="admin">
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="form-label small fw-semibold text-secondary">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text input-group-text-light"><i class="bi bi-key"></i></span>
+                    <input type="password" class="form-control form-control-light" id="password" required placeholder="••••••••">
+                </div>
+            </div>
+
+            <button type="submit" class="btn w-100 fw-bold py-2 shadow-sm" style="background: #3b82f6; color: white; border-radius: 8px;" id="loginBtn">
+                Authenticate <i class="bi bi-box-arrow-in-right ms-1"></i>
+            </button>
+            
+            <div class="text-center mt-4 pt-3 border-top border-light">
+                <p class="small text-muted mb-0"><i class="bi bi-info-circle me-1"></i> Area Terbatas. Khusus Administrator Internal.</p>
+            </div>
+        </form>
+    </div>
+
+    <!-- Scripts -->
+    <!-- SweetAlert2 untuk Notifikasi -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="assets/js/config.js"></script>
+    <script>
+        if (localStorage.getItem('access_token') && localStorage.getItem('user_role') === 'ADMIN') {
+            window.location.href = 'admin-dashboard.html';
+        }
+
+        document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Authenticating...';
+            btn.disabled = true;
+
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+
+            try {
+                // Tembak ke endpoint khusus admin
+                const resp = await fetch(API_BASE + '/admin/auth/login/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p })
+                });
+                
+                const data = await resp.json();
+                
+                if(resp.ok) {
+                    // Set token & meta
+                    localStorage.setItem('access_token', data.access);
+                    localStorage.setItem('refresh_token', data.refresh);
+                    localStorage.setItem('username', data.user.username);
+                    localStorage.setItem('user_role', data.user.role);
+                    
+                    showToast('Authentication Successful', 'success');
+                    setTimeout(() => window.location.href = 'admin-dashboard.html', 1000);
+                } else {
+                    showToast(data.detail || 'Access Denied', 'error');
+                    btn.innerHTML = 'Authenticate <i class="bi bi-box-arrow-in-right ms-1"></i>';
+                    btn.disabled = false;
+                }
+            } catch(err) {
+                showToast('Network error, gagal menghubungi SOC Backend', 'error');
+                btn.innerHTML = 'Authenticate <i class="bi bi-box-arrow-in-right ms-1"></i>';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
