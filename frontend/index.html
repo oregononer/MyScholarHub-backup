@@ -95,41 +95,11 @@
                 <h2 class="fw-bold">Available Scholarships</h2>
                 <p class="text-muted">Explore our diverse range of scholarship opportunities designed to support students from all backgrounds.</p>
             </div>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="custom-card card-scholarship border-top-blue">
-                        <h5 class="fw-bold">Merit-Based Excellence Scholarship</h5>
-                        <p class="text-muted small mb-4">For students with outstanding academic achievements and leadership potential.</p>
-                        <div class="mb-4">
-                            <div class="small mb-2"><i class="bi bi-currency-dollar text-success me-2"></i>Up to $50,000</div>
-                            <div class="small mb-2"><i class="bi bi-clock text-warning me-2"></i>Deadline: March 31, 2026</div>
-                            <div class="small"><i class="bi bi-people text-primary me-2"></i>500 students annually</div>
-                        </div>
-                        <a href="login.html" class="btn btn-primary w-100 fw-bold" style="background-color: #6f42c1; border:none;">Learn More</a>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="custom-card card-scholarship border-top-pink">
-                        <h5 class="fw-bold">STEM Innovation Scholarship</h5>
-                        <p class="text-muted small mb-4">Supporting future innovators in Science, Technology, Engineering, and Mathematics.</p>
-                        <div class="mb-4">
-                            <div class="small mb-2"><i class="bi bi-currency-dollar text-success me-2"></i>Up to $40,000</div>
-                            <div class="small mb-2"><i class="bi bi-clock text-warning me-2"></i>Deadline: April 15, 2026</div>
-                            <div class="small"><i class="bi bi-people text-primary me-2"></i>200 students annually</div>
-                        </div>
-                        <a href="login.html" class="btn btn-primary w-100 fw-bold" style="background-color: #6f42c1; border:none;">Learn More</a>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="custom-card card-scholarship border-top-red">
-                        <h5 class="fw-bold">Community Leadership Award</h5>
-                        <p class="text-muted small mb-4">Recognizing students who make a difference in their communities.</p>
-                        <div class="mb-4">
-                            <div class="small mb-2"><i class="bi bi-currency-dollar text-success me-2"></i>Up to $30,000</div>
-                            <div class="small mb-2"><i class="bi bi-clock text-warning me-2"></i>Deadline: April 30, 2026</div>
-                            <div class="small"><i class="bi bi-people text-primary me-2"></i>300 students annually</div>
-                        </div>
-                        <a href="login.html" class="btn btn-primary w-100 fw-bold" style="background-color: #6f42c1; border:none;">Learn More</a>
+            <div class="row g-4" id="scholarship-container">
+                <!-- Data akan dimuat melalui JavaScript secara dinamis dari API -->
+                <div class="col-12 text-center text-muted py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
                     </div>
                 </div>
             </div>
@@ -399,6 +369,89 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/config.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', updateNavbar);</script>
+    <script>
+        // Security Utility: Mencegah celah XSS dengan escape karakter khusus
+        function escapeHTML(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Update Navbar dynamic statenya
+            updateNavbar();
+
+            // Load Scholarships dynamically
+            const container = document.getElementById('scholarship-container');
+            if (!container) return;
+
+            try {
+                // Gunakan base url dan utilitas dari config.js
+                const response = await apiFetch('/scholarships/');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Struktur default rest_framework bisa berbalut pagination `count`/`results` jika dihidupkan, 
+                    // namun fallback ini akan mengambil array murni juga jika ada.
+                    const items = Array.isArray(data) ? data : (data.results || []);
+                    
+                    // Kita ambil 3 terbaik/terbaru untuk home page
+                    const itemsToRender = items.slice(0, 3);
+                    
+                    if (itemsToRender.length === 0) {
+                        container.innerHTML = '<div class="col-12 text-center text-muted">Belum ada beasiswa yang tersedia saat ini.</div>';
+                        return;
+                    }
+
+                    // Bersihkan loading state
+                    container.innerHTML = ''; 
+                    
+                    // Array class warna border agar card bervariasi seperti aslinya
+                    const borderColors = ['border-top-blue', 'border-top-pink', 'border-top-red'];
+
+                    itemsToRender.forEach((item, index) => {
+                        // SANITASI KEAMANAN: Membungkus semua input API menghindari Store XSS
+                        const title = escapeHTML(item.title);
+                        const provider = escapeHTML(item.provider_name);
+                        
+                        // getCoverageLabel dan formatDate disuplai oleh config.js!
+                        const coverage = escapeHTML(getCoverageLabel(item.coverage_type) || item.coverage_type);
+                        const deadline = escapeHTML(formatDate(item.deadline));
+                        const educationLevel = escapeHTML(item.education_level || 'Semua Jenjang');
+                        const slug = escapeHTML(item.slug);
+                        
+                        const borderClass = borderColors[index % borderColors.length];
+
+                        // Template Literal Injection - Aman karena sudah di escapeHTML
+                        const cardHtml = `
+                            <div class="col-md-4">
+                                <div class="custom-card card-scholarship ${borderClass} h-100 d-flex flex-column">
+                                    <h5 class="fw-bold">${title}</h5>
+                                    <p class="text-muted small mb-4">Supported by: <span class="fw-medium">${provider}</span></p>
+                                    <div class="mb-4 flex-grow-1">
+                                        <div class="small mb-2"><i class="bi bi-wallet2 text-success me-2"></i>${coverage}</div>
+                                        <div class="small mb-2"><i class="bi bi-clock text-warning me-2"></i>Deadline: ${deadline}</div>
+                                        <div class="small"><i class="bi bi-mortarboard text-primary me-2"></i>${educationLevel}</div>
+                                    </div>
+                                    <a href="detail.html?slug=${slug}" class="btn btn-primary w-100 fw-bold mt-auto" style="background-color: #6f42c1; border:none;">Learn More</a>
+                                </div>
+                            </div>
+                        `;
+                        container.insertAdjacentHTML('beforeend', cardHtml);
+                    });
+                } else {
+                    throw new Error('API Response not ok');
+                }
+            } catch (err) {
+                console.error("Error fetching scholarships:", err);
+                container.innerHTML = '<div class="col-12 text-center text-danger">Gagal memuat beasiswa dari server. Pastikan backend dihidupkan.</div>';
+            }
+        });
+    </script>
 </body>
 </html>
