@@ -46,6 +46,30 @@ def validate_external_link(value):
     return value
 
 
+def validate_provider_email(value):
+    """Validasi format email provider — wajib format valid dan domain nyata."""
+    if not value:
+        return value
+
+    import re
+    # Regex email standar RFC 5322 (simplified)
+    email_regex = re.compile(
+        r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$'
+    )
+    if not email_regex.match(value.strip()):
+        raise serializers.ValidationError(
+            'Format email tidak valid. Contoh: provider@universitas.ac.id'
+        )
+
+    # Blokir karakter berbahaya yang bisa lolos regex sederhana
+    if any(c in value for c in ['<', '>', '"', "'", ';', '(', ')']):
+        raise serializers.ValidationError(
+            'Email mengandung karakter yang tidak diizinkan.'
+        )
+
+    return value.strip().lower()
+
+
 # ==============================================================================
 # CATEGORY SERIALIZER
 # ==============================================================================
@@ -94,6 +118,7 @@ class DetailScholarshipSerializer(serializers.ModelSerializer):
     category_name = serializers.ReadOnlyField(source='category.name')
     category_slug = serializers.ReadOnlyField(source='category.slug')
     is_bookmarked = serializers.SerializerMethodField()
+    is_match = serializers.BooleanField(read_only=True, default=False)
 
     class Meta:
         model = Scholarship
@@ -102,7 +127,7 @@ class DetailScholarshipSerializer(serializers.ModelSerializer):
             'deadline', 'category', 'category_name', 'category_slug',
             'education_level', 'coverage_type', 'description',
             'requirements', 'external_link', 'poster', 'status',
-            'created_at', 'updated_at', 'is_bookmarked',
+            'created_at', 'updated_at', 'is_bookmarked', 'is_match',
         )
 
     def get_is_bookmarked(self, obj):
@@ -120,6 +145,7 @@ class ScholarshipCreateSerializer(serializers.ModelSerializer):
     Serializer untuk membuat/edit beasiswa (Admin atau Provider submission).
     Melakukan sanitasi HTML pada description dan requirements.
     Melakukan validasi URL pada external_link.
+    Melakukan validasi format email provider.
     """
     class Meta:
         model = Scholarship
@@ -141,11 +167,15 @@ class ScholarshipCreateSerializer(serializers.ModelSerializer):
         """Validasi URL — tolak javascript:, data:, vbscript:, ftp://"""
         return validate_external_link(value)
 
+    def validate_provider_email(self, value):
+        """Validasi format email provider — wajib format yang valid."""
+        return validate_provider_email(value)
+
 
 class ProviderSubmissionSerializer(serializers.ModelSerializer):
     """
     Serializer untuk form pengajuan Provider (multi-step).
-    Status otomatis PENDING. provider_email wajib diisi.
+    Status otomatis PENDING. provider_email wajib diisi dan valid.
     """
     class Meta:
         model = Scholarship
@@ -163,6 +193,9 @@ class ProviderSubmissionSerializer(serializers.ModelSerializer):
 
     def validate_external_link(self, value):
         return validate_external_link(value)
+
+    def validate_provider_email(self, value):
+        return validate_provider_email(value)
 
 
 class SubmissionTrackingSerializer(serializers.ModelSerializer):

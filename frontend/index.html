@@ -3,19 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ScholarHub | Transform Your Future</title>
+    <title>myscholarhub | Transform Your Future</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 </head>
-<body>
+<body class="theme-dark position-relative">
 
-    <nav class="navbar navbar-expand-lg navbar-dark position-absolute w-100" style="z-index: 10;">
+    <!-- Ambient Glowing Orbs Background -->
+    <div class="ambient-layer">
+        <div class="ambient-orb orb-1"></div>
+        <div class="ambient-orb orb-2"></div>
+        <div class="ambient-orb orb-3"></div>
+        <div class="ambient-orb orb-orange"></div>
+    </div>    <nav class="navbar navbar-expand-lg navbar-dark position-absolute w-100" style="z-index: 10;">
         <div class="container mt-3">
-            <a class="navbar-brand fw-bold" href="index.html"><i class="bi bi-mortarboard-fill"></i> ScholarHub</a>
+            <a class="navbar-brand fw-bold" href="index.html"><i class="bi bi-mortarboard-fill"></i> myscholarhub</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -33,25 +40,61 @@
     <section class="hero-section">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-lg-6 z-1 mb-5 mb-lg-0">
+                <div class="col-lg-6 z-1 mb-5 mb-lg-0" data-aos="fade-right">
                     <span class="badge badge-custom mb-3"><i class="bi bi-mortarboard"></i> Scholarship Opportunities 2026</span>
                     <h1 class="display-4 fw-bold mb-4">Transform Your Future with Our Scholarships</h1>
                     <p class="lead mb-4">Access world-class education through our comprehensive scholarship programs. We believe every talented student deserves the opportunity to excel.</p>
-                    <div class="d-flex gap-3">
-                        <a href="login.html" class="btn btn-orange rounded-pill px-4 py-2">Apply Now <i class="bi bi-arrow-right"></i></a>
-                        <a href="#scholarships" class="btn btn-outline-light rounded-pill px-4 py-2">Learn More</a>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <a href="login.html" class="btn btn-orange rounded-pill px-4 py-2">Daftar Sekarang <i class="bi bi-arrow-right"></i></a>
+                        <a href="#scholarships" class="btn btn-outline-light rounded-pill px-4 py-2">Lihat Program</a>
+                    </div>
+
+                    <!-- Quick Search Bar -->
+                    <div class="mt-4" data-aos="fade-up" data-aos-delay="300">
+                        <div class="d-flex align-items-center rounded-pill overflow-hidden" style="background: rgba(255,255,255,0.12); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); max-width: 480px;">
+                            <span class="ps-4 text-white opacity-75"><i class="bi bi-search"></i></span>
+                            <input
+                                type="text"
+                                id="heroSearchInput"
+                                placeholder="Cari beasiswa, misal: ITB, LPDP, S2..."
+                                class="flex-grow-1 border-0 px-3 py-3 text-white"
+                                style="background: transparent; outline: none; font-size: 0.9rem;"
+                                autocomplete="off"
+                            >
+                            <button
+                                id="heroSearchBtn"
+                                onclick="heroSearch()"
+                                class="btn rounded-pill me-1 my-1 px-4 fw-semibold"
+                                style="background: #f97316; color: white; font-size: 0.85rem; white-space: nowrap;"
+                            >Cari</button>
+                        </div>
+                        <p class="text-white opacity-50 small mt-2 ms-1">
+                            <i class="bi bi-lightning-fill text-warning me-1"></i>
+                            Tekan <kbd class="bg-white text-dark px-1 rounded" style="font-size:0.7rem;">Enter</kbd> untuk cari langsung
+                        </p>
                     </div>
                     <div class="row mt-5 pt-4">
-                        <div class="col-4"><h3 class="fw-bold">$2.5M+</h3><small>Awarded Annually</small></div>
-                        <div class="col-4"><h3 class="fw-bold">5,000+</h3><small>Students Supported</small></div>
-                        <div class="col-4"><h3 class="fw-bold">150+</h3><small>Partner Universities</small></div>
+                        <div class="col-4">
+                            <h3 class="fw-bold" id="stat-scholarships"><div class="spinner-border spinner-border-sm text-light opacity-50" role="status"></div></h3>
+                            <small>Beasiswa Aktif</small>
+                        </div>
+                        <div class="col-4">
+                            <h3 class="fw-bold" id="stat-categories"><div class="spinner-border spinner-border-sm text-light opacity-50" role="status"></div></h3>
+                            <small>Kategori Tersedia</small>
+                        </div>
+                        <div class="col-4">
+                            <h3 class="fw-bold">100%</h3>
+                            <small>Gratis & Terpercaya</small>
+                        </div>
                     </div>
                 </div>
-                <div class="col-lg-6 text-center position-relative">
-                    <img src="https://images.pexels.com/photos/7972749/pexels-photo-7972749.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Students" class="img-fluid rounded-4 shadow-lg" style="object-fit: cover; height: 450px; width: 100%;">
-                    <div class="position-absolute bg-white rounded-3 shadow p-3 d-flex align-items-center gap-3" style="bottom: -20px; left: -20px;">
-                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;"><i class="bi bi-mortarboard-fill fs-4"></i></div>
-                        <div class="text-start"><h4 class="mb-0 text-dark fw-bold">98%</h4><small class="text-muted">Success Rate</small></div>
+                <div class="col-lg-6 text-center position-relative" data-aos="fade-left" data-aos-delay="200">
+                    <div class="animate-float">
+                        <img src="https://images.pexels.com/photos/7972749/pexels-photo-7972749.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Students" class="img-fluid rounded-4 shadow-lg" style="object-fit: cover; height: 450px; width: 100%;">
+                        <div class="position-absolute glass-box rounded-4 shadow-lg p-3 d-flex align-items-center gap-3" style="bottom: -20px; left: -20px; border-color: rgba(255,127,80,0.3);">
+                            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; box-shadow: 0 0 15px rgba(25,135,84,0.5);"><i class="bi bi-mortarboard-fill fs-4"></i></div>
+                            <div class="text-start"><h4 class="mb-0 text-white fw-bold">98%</h4><small class="text-white opacity-75">Success Rate</small></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -60,46 +103,65 @@
 
     <section class="section-padding" id="benefits">
         <div class="container">
-            <div class="text-center mb-5">
+            <div class="text-center mb-5" data-aos="fade-up">
                 <span class="pill-badge pill-orange">Why Choose Us</span>
                 <h2 class="fw-bold">Scholarship Benefits</h2>
                 <p class="text-muted">Our comprehensive scholarship program goes beyond financial aid to support your entire educational journey.</p>
             </div>
             <div class="row g-4">
-                <div class="col-md-4">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="0">
                     <div class="custom-card"><div class="icon-box bg-success"><i class="bi bi-cash"></i></div><h5 class="fw-bold">Financial Support</h5><p class="text-muted small">Full or partial tuition coverage plus living expenses for eligible students.</p></div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
                     <div class="custom-card"><div class="icon-box bg-primary"><i class="bi bi-book"></i></div><h5 class="fw-bold">Academic Resources</h5><p class="text-muted small">Access to exclusive learning materials, workshops, and mentorship programs.</p></div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
                     <div class="custom-card"><div class="icon-box" style="background-color: #9333ea;"><i class="bi bi-people"></i></div><h5 class="fw-bold">Network Building</h5><p class="text-muted small">Connect with fellow scholars, alumni, and industry professionals worldwide.</p></div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
                     <div class="custom-card"><div class="icon-box bg-orange" style="background-color: #ea580c;"><i class="bi bi-award"></i></div><h5 class="fw-bold">Recognition</h5><p class="text-muted small">Prestigious award that enhances your resume and future career prospects.</p></div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="400">
                     <div class="custom-card"><div class="icon-box bg-info"><i class="bi bi-globe"></i></div><h5 class="fw-bold">Global Opportunities</h5><p class="text-muted small">Study abroad programs and international exchange opportunities.</p></div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="500">
                     <div class="custom-card"><div class="icon-box bg-danger"><i class="bi bi-graph-up-arrow"></i></div><h5 class="fw-bold">Career Development</h5><p class="text-muted small">Internship placements, career counseling, and job placement assistance.</p></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="section-padding bg-white" id="scholarships">
+    <section class="section-padding" id="scholarships" style="overflow: visible;">
         <div class="container">
-            <div class="text-center mb-5">
-                <span class="pill-badge pill-purple">Available Programs</span>
-                <h2 class="fw-bold">Available Scholarships</h2>
-                <p class="text-muted">Explore our diverse range of scholarship opportunities designed to support students from all backgrounds.</p>
-            </div>
-            <div class="row g-4" id="scholarship-container">
-                <!-- Data akan dimuat melalui JavaScript secara dinamis dari API -->
-                <div class="col-12 text-center text-muted py-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
+            <div class="row position-relative">
+                <!-- Sticky Left Side -->
+                <div class="col-lg-5 mb-5 mb-lg-0" style="position: sticky; top: 120px; height: fit-content; z-index: 5;">
+                    <div data-aos="fade-right">
+                        <span class="pill-badge pill-purple">Available Programs</span>
+                        <h2 class="display-5 fw-bold mb-4">Available Scholarships</h2>
+                        <p class="text-white opacity-75 lead mb-5">Explore our diverse range of scholarship opportunities designed to support students from all backgrounds.</p>
+                        
+                        <div class="p-4 glass-box rounded-4 border border-light border-opacity-10" data-aos="zoom-in" data-aos-delay="200">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="bi bi-rocket-takeoff text-warning fs-1"></i>
+                                <div>
+                                    <h5 class="fw-bold mb-1 text-white">Launch Your Career</h5>
+                                    <p class="text-white opacity-75 small mb-0">Get full tuition coverage and monthly stipends from top providers.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scrollable Right Side -->
+                <div class="col-lg-7">
+                    <div class="row g-4" id="scholarship-container">
+                        <!-- Data akan dimuat melalui JavaScript secara dinamis dari API -->
+                        <div class="col-12 text-center text-muted py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -108,13 +170,13 @@
 
     <section class="section-padding" id="process">
         <div class="container">
-            <div class="text-center mb-5">
+            <div class="text-center mb-5" data-aos="fade-up">
                 <span class="pill-badge pill-blue">How It Works</span>
                 <h2 class="fw-bold">Application Process</h2>
                 <p class="text-muted">Our streamlined application process makes it easy to apply for scholarships in just four simple steps.</p>
             </div>
             <div class="row g-4 position-relative">
-                <div class="col-md-3">
+                <div class="col-md-3" data-aos="zoom-in" data-aos-delay="100">
                     <div class="custom-card text-start">
                         <div class="step-number">01</div>
                         <div class="step-content">
@@ -124,7 +186,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3" data-aos="zoom-in" data-aos-delay="100">
                     <div class="custom-card text-start">
                         <div class="step-number">02</div>
                         <div class="step-content">
@@ -134,7 +196,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3" data-aos="zoom-in" data-aos-delay="100">
                     <div class="custom-card text-start">
                         <div class="step-number">03</div>
                         <div class="step-content">
@@ -144,7 +206,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3" data-aos="zoom-in" data-aos-delay="100">
                     <div class="custom-card text-start">
                         <div class="step-number">04</div>
                         <div class="step-content">
@@ -160,48 +222,48 @@
 
     <section class="section-padding" id="testimonials">
         <div class="container">
-            <div class="text-center mb-5">
+            <div class="text-center mb-5" data-aos="fade-up">
                 <span class="pill-badge pill-pink">Success Stories</span>
                 <h2 class="fw-bold">What Our Scholars Say</h2>
                 <p class="text-muted">Hear from students whose lives have been transformed through our scholarship programs.</p>
             </div>
             <div class="row g-4">
-                <div class="col-md-4">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="0">
                     <div class="custom-card">
                         <div class="d-flex justify-content-between mb-3">
                             <div><i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i></div>
-                            <i class="bi bi-quote fs-1 text-purple" style="color: #e9d5ff; opacity: 0.5;"></i>
+                            <i class="bi bi-quote fs-1" style="color: #e9d5ff; opacity: 0.5;"></i>
                         </div>
-                        <p class="text-muted small flex-grow-1">"This scholarship changed my life. Not only did it cover my tuition, but the mentorship program connected me with industry leaders who guided my career path."</p>
+                        <p class="text-muted small flex-grow-1">"Berkat beasiswa ini, saya bisa fokus kuliah tanpa khawatir biaya. Program mentoring-nya juga mempertemukan saya dengan banyak profesional yang sangat membantu karier saya."</p>
                         <div class="mt-4 border-top pt-3">
-                            <h6 class="fw-bold mb-0">Sarah Johnson</h6>
-                            <small class="text-muted">Merit-Based Excellence Scholarship<br>Class of 2025</small>
+                            <h6 class="fw-bold mb-0">Rina Kusumawati</h6>
+                            <small class="text-muted">Beasiswa Prestasi Unggulan<br>Mahasiswi Universitas Indonesia, 2025</small>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
                     <div class="custom-card">
                         <div class="d-flex justify-content-between mb-3">
                             <div><i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i></div>
-                            <i class="bi bi-quote fs-1 text-purple" style="color: #e9d5ff; opacity: 0.5;"></i>
+                            <i class="bi bi-quote fs-1" style="color: #e9d5ff; opacity: 0.5;"></i>
                         </div>
-                        <p class="text-muted small flex-grow-1">"The financial support allowed me to focus entirely on my research. I've published two papers and secured an internship at a leading tech company."</p>
+                        <p class="text-muted small flex-grow-1">"Dukungan finansial dari beasiswa ini memungkinkan saya fokus riset. Alhamdulillah, sudah berhasil publikasi dua paper dan magang di perusahaan teknologi impian saya."</p>
                         <div class="mt-4 border-top pt-3">
-                            <h6 class="fw-bold mb-0">Michael Chen</h6>
-                            <small class="text-muted">STEM Innovation Scholarship<br>Class of 2024</small>
+                            <h6 class="fw-bold mb-0">Dimas Ardiansyah</h6>
+                            <small class="text-muted">Beasiswa Inovasi STEM<br>Mahasiswa Institut Teknologi Bandung, 2024</small>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
                     <div class="custom-card">
                         <div class="d-flex justify-content-between mb-3">
                             <div><i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i></div>
-                            <i class="bi bi-quote fs-1 text-purple" style="color: #e9d5ff; opacity: 0.5;"></i>
+                            <i class="bi bi-quote fs-1" style="color: #e9d5ff; opacity: 0.5;"></i>
                         </div>
-                        <p class="text-muted small flex-grow-1">"Beyond the financial aid, I gained access to an incredible network of scholars. The connections I made here will last a lifetime."</p>
+                        <p class="text-muted small flex-grow-1">"Selain bantuan finansial, saya menemukan komunitas penerima beasiswa yang luar biasa. Jaringan yang saya bangun di sini akan berharga seumur hidup."</p>
                         <div class="mt-4 border-top pt-3">
-                            <h6 class="fw-bold mb-0">Maria Garcia</h6>
-                            <small class="text-muted">Community Leadership Award<br>Class of 2025</small>
+                            <h6 class="fw-bold mb-0">Siti Rahayu Pratiwi</h6>
+                            <small class="text-muted">Penghargaan Kepemimpinan Komunitas<br>Mahasiswi Universitas Gadjah Mada, 2025</small>
                         </div>
                     </div>
                 </div>
@@ -211,82 +273,82 @@
 
 <section class="section-padding" id="faq">
         <div class="container" style="max-width: 800px;">
-            <div class="text-center mb-5">
+            <div class="text-center mb-5" data-aos="fade-up">
                 <span class="pill-badge pill-cyan">FAQ</span>
                 <h2 class="fw-bold">Frequently Asked Questions</h2>
                 <p class="text-muted">Find answers to common questions about our scholarship programs.</p>
             </div>
-            <div class="accordion" id="faqAccordion">
+            <div class="accordion" id="faqAccordion" data-aos="fade-up" data-aos-delay="200">
                 
-                <div class="accordion-item">
+                <div class="accordion-item glass-box border-0">
                     <h2 class="accordion-header">
                         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">When is the application deadline?</button>
                     </h2>
                     <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body text-muted small">Application deadlines vary by scholarship program. Most deadlines fall between February and May 2026. Check individual scholarship details for specific dates.</div>
+                        <div class="accordion-body text-white opacity-75 small border-top border-light border-opacity-10">Application deadlines vary by scholarship program. Most deadlines fall between February and May 2026. Check individual scholarship details for specific dates.</div>
                     </div>
                 </div>
 
-                <div class="accordion-item">
+                <div class="accordion-item glass-box border-0 mt-3">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">Can I apply for multiple scholarships?</button>
                     </h2>
                     <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body text-muted small">Yes, you can apply for as many scholarships as you are eligible for using a single account dashboard.</div>
+                        <div class="accordion-body text-white opacity-75 small border-top border-light border-opacity-10">Yes, you can apply for as many scholarships as you are eligible for using a single account dashboard.</div>
                     </div>
                 </div>
 
-                <div class="accordion-item">
+                <div class="accordion-item glass-box border-0 mt-3">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">Do I need to be a US citizen to apply?</button>
                     </h2>
                     <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body text-muted small">No, we have specific scholarships available for international students as well. Please refer to the "International Students" category.</div>
+                        <div class="accordion-body text-white opacity-75 small border-top border-light border-opacity-10">No, we have specific scholarships available for international students as well. Please refer to the "International Students" category.</div>
                     </div>
                 </div>
 
-                <div class="accordion-item">
+                <div class="accordion-item glass-box border-0 mt-3">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">Is the scholarship renewable?</button>
                     </h2>
                     <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body text-muted small">Many of our merit-based scholarships are renewable for up to four years, provided you maintain the required minimum GPA and meet other specific criteria.</div>
+                        <div class="accordion-body text-white opacity-75 small border-top border-light border-opacity-10">Many of our merit-based scholarships are renewable for up to four years, provided you maintain the required minimum GPA and meet other specific criteria.</div>
                     </div>
                 </div>
 
-                <div class="accordion-item">
+                <div class="accordion-item glass-box border-0 mt-3">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">What documents do I need to submit?</button>
                     </h2>
                     <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body text-muted small">Standard requirements include your official transcripts, a personal essay, two letters of recommendation, and proof of enrollment. Some specific programs may require a portfolio.</div>
+                        <div class="accordion-body text-white opacity-75 small border-top border-light border-opacity-10">Standard requirements include your official transcripts, a personal essay, two letters of recommendation, and proof of enrollment. Some specific programs may require a portfolio.</div>
                     </div>
                 </div>
 
-                <div class="accordion-item">
+                <div class="accordion-item glass-box border-0 mt-3">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">When will I hear about the decision?</button>
                     </h2>
                     <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body text-muted small">Decision notifications are typically sent out 4-6 weeks after the application deadline. You can check your application status on your dashboard at any time.</div>
+                        <div class="accordion-body text-white opacity-75 small border-top border-light border-opacity-10">Decision notifications are typically sent out 4-6 weeks after the application deadline. You can check your application status on your dashboard at any time.</div>
                     </div>
                 </div>
 
-                <div class="accordion-item">
+                <div class="accordion-item glass-box border-0 mt-3">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq7">Can the scholarship be used at any university?</button>
                     </h2>
                     <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body text-muted small">Most of our general scholarships can be applied to any accredited, non-profit university. However, partner-specific scholarships must be used at the designated institution.</div>
+                        <div class="accordion-body text-white opacity-75 small border-top border-light border-opacity-10">Most of our general scholarships can be applied to any accredited, non-profit university. However, partner-specific scholarships must be used at the designated institution.</div>
                     </div>
                 </div>
 
-                <div class="accordion-item">
+                <div class="accordion-item glass-box border-0 mt-3">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq8">What if my financial situation changes?</button>
                     </h2>
                     <div id="faq8" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body text-muted small">If your financial situation changes significantly after submitting your application, please contact our support team to update your profile and provide new supporting documentation.</div>
+                        <div class="accordion-body text-white opacity-75 small border-top border-light border-opacity-10">If your financial situation changes significantly after submitting your application, please contact our support team to update your profile and provide new supporting documentation.</div>
                     </div>
                 </div>
 
@@ -326,43 +388,46 @@
         <div class="container">
             <div class="row g-4 mb-4">
                 <div class="col-lg-4">
-                    <h5 class="fw-bold"><i class="bi bi-mortarboard-fill"></i> Scholarship Portal</h5>
-                    <p class="small mt-3 pe-4">Empowering students to achieve their educational dreams through comprehensive scholarship opportunities.</p>
+                    <h5 class="fw-bold"><i class="bi bi-mortarboard-fill"></i> myscholarhub</h5>
+                    <p class="small mt-3 pe-4">Membantu mahasiswa Indonesia meraih impian pendidikan mereka melalui akses informasi beasiswa yang lengkap dan terpercaya.</p>
                     <div class="social-icons mt-4">
-                        <a href="#"><i class="bi bi-facebook"></i></a>
-                        <a href="#"><i class="bi bi-twitter"></i></a>
-                        <a href="#"><i class="bi bi-instagram"></i></a>
-                        <a href="#"><i class="bi bi-linkedin"></i></a>
+                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><i class="bi bi-twitter"></i></a>
+                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-4">
-                    <h5>Scholarships</h5>
+                    <h5>Platform</h5>
                     <ul class="list-unstyled small">
-                        <li class="mb-2"><a href="#">Merit-Based</a></li>
-                        <li class="mb-2"><a href="#">STEM Programs</a></li>
-                        <li class="mb-2"><a href="#">Community Leadership</a></li>
-                        <li class="mb-2"><a href="#">Arts & Creativity</a></li>
-                        <li class="mb-2"><a href="#">International Students</a></li>
+                        <li class="mb-2"><a href="dashboard.html">Cari Beasiswa</a></li>
+                        <li class="mb-2"><a href="login.html">Daftar / Masuk</a></li>
+                        <li class="mb-2"><a href="promote.html">Promosi Beasiswa</a></li>
+                        <li class="mb-2"><a href="track.html">Cek Status Pengajuan</a></li>
+                        <li class="mb-2"><a href="#faq">FAQ</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-2 col-md-4">
-                    <h5>Resources</h5>
+                    <h5>Informasi</h5>
                     <ul class="list-unstyled small">
-                        <li class="mb-2"><a href="#">Application Guide</a></li>
-                        <li class="mb-2"><a href="#">Essay Tips</a></li>
-                        <li class="mb-2"><a href="#">Financial Aid</a></li>
-                        <li class="mb-2"><a href="#">Student Stories</a></li>
-                        <li class="mb-2"><a href="#">FAQ</a></li>
+                        <li class="mb-2"><a href="#benefits">Keunggulan Kami</a></li>
+                        <li class="mb-2"><a href="#process">Cara Kerja</a></li>
+                        <li class="mb-2"><a href="#testimonials">Testimoni</a></li>
+                        <li class="mb-2"><a href="#scholarships">Program Aktif</a></li>
+                        <li class="mb-2"><a href="#faq">Bantuan</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-4 col-md-4">
-                    <h5>Contact</h5>
+                    <h5>Kontak</h5>
                     <ul class="list-unstyled small">
-                        <li class="mb-3"><i class="bi bi-envelope me-2"></i> scholarships@example.com</li>
-                        <li class="mb-3"><i class="bi bi-telephone me-2"></i> +1 (555) 123-4567</li>
-                        <li class="mb-3 d-flex"><i class="bi bi-geo-alt me-2 mt-1"></i> <div>123 Education Way, University City, ST 12345</div></li>
+                        <li class="mb-3"><i class="bi bi-envelope me-2"></i><a href="mailto:myscholarhub@gmail.com" style="color: inherit;">myscholarhub@gmail.com</a></li>
+                        <li class="mb-3"><i class="bi bi-telephone me-2"></i><a href="tel:+6285779644363" style="color: inherit;">+62 857-7964-4363</a></li>
+                        <li class="mb-3 d-flex"><i class="bi bi-geo-alt me-2 mt-1"></i><div>Jl. Ahmad Yani, Tlk. Tering, Kec. Batam Kota, Kota Batam, Kepulauan Riau 29461</div></li>
                     </ul>
                 </div>
+            </div>
+            <div class="border-top border-light border-opacity-15 pt-3 text-center">
+                <small class="opacity-50">&copy; 2026 myscholarhub. Seluruh hak cipta dilindungi.</small>
             </div>
         </div>
     </footer>
@@ -381,77 +446,140 @@
                 .replace(/'/g, "&#039;");
         }
 
+        // Animasi counter angka (untuk stat realtime)
+        function animateCounter(el, target, suffix = '') {
+            const duration = 1200;
+            const startTime = performance.now();
+            function update(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+                const current = Math.floor(eased * target);
+                el.textContent = current + suffix;
+                if (progress < 1) requestAnimationFrame(update);
+            }
+            requestAnimationFrame(update);
+        }
+
+        // Quick Search — redirect ke dashboard dengan query
+        function heroSearch() {
+            const input = document.getElementById('heroSearchInput');
+            const q = input ? input.value.trim() : '';
+            if (!q) {
+                // Scroll ke section beasiswa jika kosong
+                document.getElementById('scholarships').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+            // Redirect ke dashboard login-required dengan query
+            const dest = isLoggedIn()
+                ? `dashboard.html?q=${encodeURIComponent(q)}`
+                : `login.html?next=dashboard.html?q=${encodeURIComponent(q)}`;
+            window.location.href = dest;
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             // Update Navbar dynamic statenya
             updateNavbar();
 
-            // Load Scholarships dynamically
+            // Enter key pada hero search
+            const heroInput = document.getElementById('heroSearchInput');
+            if (heroInput) {
+                heroInput.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') heroSearch();
+                });
+            }
+
+            // ── Load Realtime Stats ──────────────────────────────────────────
+            try {
+                const statsResp = await apiFetch('/stats/');
+                if (statsResp.ok) {
+                    const stats = await statsResp.json();
+                    const elScholarships = document.getElementById('stat-scholarships');
+                    const elCategories   = document.getElementById('stat-categories');
+                    if (elScholarships) animateCounter(elScholarships, stats.total_scholarships || 0, '+');
+                    if (elCategories)   animateCounter(elCategories,   stats.total_categories  || 0, '+');
+                }
+            } catch (err) {
+                // Fallback jika API tidak bisa dijangkau — tampilkan tanda tanya
+                const els = ['stat-scholarships', 'stat-categories'];
+                els.forEach(id => { const el = document.getElementById(id); if (el) el.textContent = '—'; });
+            }
+
+            // ── Load Scholarships ────────────────────────────────────────────
             const container = document.getElementById('scholarship-container');
             if (!container) return;
 
             try {
-                // Gunakan base url dan utilitas dari config.js
                 const response = await apiFetch('/scholarships/');
                 
                 if (response.ok) {
                     const data = await response.json();
-                    
-                    // Struktur default rest_framework bisa berbalut pagination `count`/`results` jika dihidupkan, 
-                    // namun fallback ini akan mengambil array murni juga jika ada.
                     const items = Array.isArray(data) ? data : (data.results || []);
                     
-                    // Kita ambil 3 terbaik/terbaru untuk home page
-                    const itemsToRender = items.slice(0, 3);
-                    
-                    if (itemsToRender.length === 0) {
-                        container.innerHTML = '<div class="col-12 text-center text-muted">Belum ada beasiswa yang tersedia saat ini.</div>';
+                    if (items.length === 0) {
+                        container.innerHTML = '<div class="col-12 text-center text-muted py-5"><i class="bi bi-search fs-1 d-block mb-3"></i>Belum ada beasiswa yang tersedia saat ini.</div>';
                         return;
                     }
 
-                    // Bersihkan loading state
-                    container.innerHTML = ''; 
-                    
-                    // Array class warna border agar card bervariasi seperti aslinya
+                    container.innerHTML = '';
                     const borderColors = ['border-top-blue', 'border-top-pink', 'border-top-red'];
 
-                    itemsToRender.forEach((item, index) => {
-                        // SANITASI KEAMANAN: Membungkus semua input API menghindari Store XSS
-                        const title = escapeHTML(item.title);
-                        const provider = escapeHTML(item.provider_name);
-                        
-                        // getCoverageLabel dan formatDate disuplai oleh config.js!
-                        const coverage = escapeHTML(getCoverageLabel(item.coverage_type) || item.coverage_type);
-                        const deadline = escapeHTML(formatDate(item.deadline));
+                    items.forEach((item, index) => {
+                        const title          = escapeHTML(item.title);
+                        const provider       = escapeHTML(item.provider_name);
+                        const coverage       = escapeHTML(getCoverageLabel(item.coverage_type) || item.coverage_type);
+                        const deadline       = escapeHTML(formatDate(item.deadline));
                         const educationLevel = escapeHTML(item.education_level || 'Semua Jenjang');
-                        const slug = escapeHTML(item.slug);
+                        const slug           = escapeHTML(item.slug);
+                        const borderClass    = borderColors[index % borderColors.length];
                         
-                        const borderClass = borderColors[index % borderColors.length];
+                        const isMatch = item.is_match === true;
+                        // Prioritaskan warna match jika true, kalau tidak pakai border fallback
+                        const baseBorder = borderClass === 'border-top-blue' ? '#3b82f6' : (borderClass === 'border-top-pink' ? '#ec4899' : '#ef4444');
+                        const matchStyle = isMatch ? 'border-top: 3px solid #a855f7; border-color: #a855f7; box-shadow: 0 0 20px rgba(168,85,247,0.3);' : `border-top: 3px solid ${baseBorder};`;
+                        
+                        const matchBadge = isMatch 
+                            ? `<div class="position-absolute top-0 start-50 translate-middle-x" style="z-index:5;"><span class="pill-badge pill-purple px-3 py-1 fw-bold border border-light border-opacity-25" style="font-size: 0.75rem; text-shadow: 0 0 10px rgba(255,255,255,0.5);">✨ Rekomendasi Pintar</span></div>` 
+                            : '';
 
-                        // Template Literal Injection - Aman karena sudah di escapeHTML
                         const cardHtml = `
-                            <div class="col-md-4">
-                                <div class="custom-card card-scholarship ${borderClass} h-100 d-flex flex-column">
-                                    <h5 class="fw-bold">${title}</h5>
-                                    <p class="text-muted small mb-4">Supported by: <span class="fw-medium">${provider}</span></p>
+                            <div class="col-md-6" data-aos="zoom-in" data-aos-delay="150">
+                                <div class="custom-card glass-box p-4 h-100 d-flex flex-column position-relative mt-2" style="${matchStyle}">
+                                    ${matchBadge}
+                                    <h5 class="fw-bold text-white line-clamp-2" style="min-height: 48px;">${title}</h5>
+                                    <p class="text-white opacity-75 small mb-4 mt-2">Supported by: <span class="fw-medium text-warning">${provider}</span></p>
                                     <div class="mb-4 flex-grow-1">
-                                        <div class="small mb-2"><i class="bi bi-wallet2 text-success me-2"></i>${coverage}</div>
-                                        <div class="small mb-2"><i class="bi bi-clock text-warning me-2"></i>Deadline: ${deadline}</div>
-                                        <div class="small"><i class="bi bi-mortarboard text-primary me-2"></i>${educationLevel}</div>
+                                        <div class="small mb-2 fw-semibold" style="color: #6ee7b7;"><i class="bi bi-wallet2 me-2"></i>${coverage}</div>
+                                        <div class="small mb-2 text-white"><i class="bi bi-clock text-danger me-2"></i>Deadline: ${deadline}</div>
+                                        <div class="small text-white opacity-75"><i class="bi bi-mortarboard text-info me-2"></i>${educationLevel}</div>
                                     </div>
-                                    <a href="detail.html?slug=${slug}" class="btn btn-primary w-100 fw-bold mt-auto" style="background-color: #6f42c1; border:none;">Learn More</a>
+                                    <a href="detail.html?slug=${slug}" class="btn btn-orange w-100 fw-bold mt-auto rounded-pill py-2">Lihat Detail <i class="bi bi-arrow-right ms-1"></i></a>
                                 </div>
                             </div>
                         `;
                         container.insertAdjacentHTML('beforeend', cardHtml);
                     });
+
+                    // Tampilkan link ke dashboard jika ada lebih banyak beasiswa (pagination)
+                    if (data.count && data.count > items.length) {
+                        container.insertAdjacentHTML('beforeend', `
+                            <div class="col-12 text-center mt-2">
+                                <a href="login.html" class="btn btn-outline-light rounded-pill px-5 py-2">
+                                    <i class="bi bi-grid me-2"></i>Lihat Semua ${data.count} Beasiswa
+                                </a>
+                            </div>
+                        `);
+                    }
                 } else {
                     throw new Error('API Response not ok');
                 }
             } catch (err) {
-                console.error("Error fetching scholarships:", err);
-                container.innerHTML = '<div class="col-12 text-center text-danger">Gagal memuat beasiswa dari server. Pastikan backend dihidupkan.</div>';
+                console.error('Error fetching scholarships:', err);
+                container.innerHTML = '<div class="col-12 text-center text-danger py-5"><i class="bi bi-exclamation-triangle fs-1 d-block mb-3"></i>Gagal memuat beasiswa dari server. Pastikan backend dihidupkan.</div>';
             }
         });
     </script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>AOS.init({ duration: 800, once: true, offset: 50 });</script>
 </body>
 </html>

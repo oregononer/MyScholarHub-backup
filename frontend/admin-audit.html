@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audit Trail | ScholarHub Admin</title>
+    <title>Audit Trail | myscholarhub Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -28,27 +28,27 @@
                 </div>
                 <div class="admin-nav-item mt-1">
                     <a href="admin-moderation.html" class="admin-nav-link">
-                        <i class="bi bi-clipboard-check"></i> Moderation
+                        <i class="bi bi-clipboard-check"></i> <span data-i18n="nav.moderation">Moderasi</span>
                     </a>
                 </div>
                 <div class="admin-nav-item mt-1">
                     <a href="admin-users.html" class="admin-nav-link">
-                        <i class="bi bi-people"></i> Users
+                        <i class="bi bi-people"></i> <span data-i18n="nav.users">Pengguna</span>
                     </a>
                 </div>
                 <div class="admin-nav-item mt-1">
                     <a href="admin-audit.html" class="admin-nav-link active">
-                        <i class="bi bi-journal-text"></i> Audit Log
+                        <i class="bi bi-journal-text"></i> <span data-i18n="nav.auditlog">Log Audit</span>
                     </a>
                 </div>
             </nav>
 
             <div class="p-3 border-top" style="border-color: #f1f5f9 !important;">
                 <a href="index.html" class="admin-nav-link mb-2" style="background: none; border: 1px solid #e2e8f0; justify-content: center;">
-                    <i class="bi bi-house text-primary"></i> <span style="color: #64748b">Back to Portal</span>
+                    <i class="bi bi-house text-primary"></i> <span style="color: #64748b" data-i18n="nav.backportal">Kembali ke Portal</span>
                 </a>
                 <button onclick="logout()" class="admin-nav-link w-100 border-0" style="background: #fee2e2; color: #ef4444; justify-content: center;">
-                    <i class="bi bi-box-arrow-left text-danger"></i> Logout
+                    <i class="bi bi-box-arrow-left text-danger"></i> <span data-i18n="nav.logout">Keluar</span>
                 </button>
             </div>
         </aside>
@@ -65,22 +65,35 @@
                 </div>
                 <div class="admin-search-box d-none d-lg-block">
                     <i class="bi bi-search"></i>
-                    <input type="text" placeholder="Search...">
+                    <input type="text" data-i18n-ph="topbar.search" placeholder="Cari...">
                 </div>
 
                 <div class="admin-top-actions">
-                    <button class="top-icon-btn d-none d-sm-block">
-                        <i class="bi bi-translate"></i> <span style="font-size: 0.85rem; font-weight: 600; margin-left: 3px;">English</span>
+                    <button class="sh-lang-btn d-none d-sm-flex" onclick="toggleLang()" id="langSwitchBtn" aria-label="Switch language">
+                        <span class="sh-lang-flag" id="langFlag">🇮🇩</span>
+                        <span id="langLabel">Indonesia</span>
                     </button>
-                    <button class="top-icon-btn">
-                        <i class="bi bi-bell"></i>
-                        <span class="top-badge bg-warning">6</span>
-                    </button>
-                    <button class="top-icon-btn">
-                        <i class="bi bi-envelope"></i>
-                        <span class="top-badge bg-primary">2</span>
-                    </button>
-                    <img src="https://ui-avatars.com/api/?name=Admin&background=random" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; cursor: pointer; margin-left: 10px;" alt="...">
+                    <div class="sh-topbar-item">
+                        <button class="top-icon-btn" id="notifBellBtn" aria-label="Notifications" aria-haspopup="true">
+                            <i class="bi bi-bell"></i>
+                            <span class="top-badge bg-warning" id="notifBadge" style="display:none;">0</span>
+                        </button>
+                        <div class="sh-panel" id="notifPanel" role="dialog" aria-label="Notification panel">
+                            <div class="sh-panel-header"><i class="bi bi-bell-fill text-warning"></i> <span data-i18n="notif.title">Notifikasi</span></div>
+                            <div class="sh-panel-body" id="notifList"></div>
+                        </div>
+                    </div>
+                    <div class="sh-topbar-item">
+                        <button class="top-icon-btn" id="emailLogBtn" aria-label="Email activity log" aria-haspopup="true">
+                            <i class="bi bi-envelope"></i>
+                            <span class="top-badge bg-primary" id="emailBadge" style="display:none;">0</span>
+                        </button>
+                        <div class="sh-panel" id="emailLogPanel" role="dialog" aria-label="Email log panel">
+                            <div class="sh-panel-header"><i class="bi bi-envelope-fill text-primary"></i> <span data-i18n="email.title">Log Aktivitas Email</span></div>
+                            <div class="sh-panel-body" id="emailLogList"></div>
+                        </div>
+                    </div>
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=random" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; cursor: pointer; margin-left: 10px;" alt="Profile">
                 </div>
             </header>
 
@@ -193,7 +206,12 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', loadLogs);
+        document.addEventListener('DOMContentLoaded', () => {
+            initLang();
+            initNotifications();
+            initEmailLog();
+            loadLogs();
+        });
     </script>
 </body>
 </html>

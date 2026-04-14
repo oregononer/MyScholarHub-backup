@@ -39,6 +39,20 @@ class RegisterRateThrottle(AnonRateThrottle):
     rate = '3/hour'
 
 
+class ForgotPasswordRateThrottle(AnonRateThrottle):
+    """Maks 3 permintaan reset password per jam per IP.
+    Mencegah email bombing dan brute-force token reset."""
+    scope = 'forgot_password'
+    rate = '3/hour'
+
+
+class ResetPasswordRateThrottle(AnonRateThrottle):
+    """Maks 5 percobaan reset password per jam per IP.
+    Mencegah brute-force token."""
+    scope = 'reset_password'
+    rate = '5/hour'
+
+
 # ==============================================================================
 # 1. REGISTRASI (Applicant Only)
 # ==============================================================================
@@ -239,16 +253,34 @@ def get_my_profile(request):
 def update_my_profile(request):
     """
     PATCH /api/me/profile/ — Anti-IDOR: hanya bisa update data sendiri.
+    Validasi: panjang username, karakter, dan keunikan sebelum disimpan.
     """
     user = request.user
     updated_fields = []
+    errors = {}
 
-    # Update username
+    # Update username — dengan validasi ketat
     new_username = request.data.get('username')
-    if new_username and new_username != user.username:
-        user.username = new_username
-        user.save(update_fields=['username'])
-        updated_fields.append('username')
+    if new_username is not None:
+        new_username = str(new_username).strip()
+        if not new_username:
+            errors['username'] = 'Username tidak boleh kosong.'
+        elif len(new_username) < 3:
+            errors['username'] = 'Username minimal 3 karakter.'
+        elif len(new_username) > 30:
+            errors['username'] = 'Username maksimal 30 karakter.'
+        elif not new_username.replace('_', '').replace('.', '').isalnum():
+            errors['username'] = 'Username hanya boleh mengandung huruf, angka, titik, dan underscore.'
+        elif new_username != user.username:
+            if CustomUser.objects.filter(username__iexact=new_username).exclude(pk=user.pk).exists():
+                errors['username'] = 'Username sudah digunakan oleh akun lain.'
+            else:
+                user.username = new_username
+                user.save(update_fields=['username'])
+                updated_fields.append('username')
+
+    if errors:
+        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
     # Update ApplicantProfile fields
     if user.is_applicant_role:
@@ -257,7 +289,9 @@ def update_my_profile(request):
         for field in profile_fields:
             value = request.data.get(field)
             if value is not None:
-                setattr(profile, field, value)
+                # Strip whitespace dari semua field string
+                clean_value = str(value).strip() if isinstance(value, str) else value
+                setattr(profile, field, clean_value)
                 updated_fields.append(field)
         if updated_fields:
             profile.save()
@@ -310,12 +344,17 @@ def change_password(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([ForgotPasswordRateThrottle])
 def forgot_password(request):
     """
     POST /api/auth/forgot-password/
-    Generate token reset, simpan di cache (15 menit TTL).
+    Generate token reset, simpan di cache (1 jam TTL).
     Di production, token dikirim via email.
+    dev_token HANYA ditampilkan jika DEBUG=True — tidak bisa bocor ke production.
+    Rate limit: 3 permintaan per jam per IP (anti-email-bombing).
     """
+    from django.conf import settings as django_settings
+
     serializer = PasswordResetRequestSerializer(data=request.data)
     if not serializer.is_valid():
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -343,14 +382,18 @@ def forgot_password(request):
         target_id=user.id,
     )
 
-    # --- LOCALHOST DEV MODE ---
-    # Di production, token dikirim via email menggunakan SMTP.
-    # Untuk development, token ditampilkan di response.
-    # HAPUS 'token' dari response SAAT DEPLOY KE PRODUCTION
-    return Response({
-        "message": "Jika email terdaftar, link reset password telah dikirim.",
-        "dev_token": token,  # HAPUS SAAT DEPLOY KE PRODUCTION
-    })
+    # TODO (Production): Kirim token via email SMTP ke user.email
+    # Contoh: send_mail(subject='Reset Password', message=f'Token kamu: {token}', ...)
+
+    # --- SECURITY: dev_token HANYA muncul saat DEBUG=True ---
+    # Saat production (DEBUG=False), response ini TIDAK mengandung token sama sekali.
+    # Ini mencegah token bocor meskipun developer lupa menghapusnya.
+    response_data = {"message": "Jika email terdaftar, link reset password telah dikirim."}
+    if django_settings.DEBUG:
+        response_data["dev_token"] = token
+        response_data["dev_note"] = "[DEV ONLY] Token ini tidak akan muncul di production (DEBUG=False)."
+
+    return Response(response_data)
 
 
 # ==============================================================================
@@ -359,11 +402,12 @@ def forgot_password(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([ResetPasswordRateThrottle])
 def reset_password(request):
     """
     POST /api/auth/reset-password/
-    Verifikasi token dan set password baru.
-    Token one-time — langsung dihapus setelah digunakan.
+    Verifikasi token, set password baru, hapus token dari cache.
+    Rate limit: 5 percobaan per jam per IP (anti-brute-force token).
     """
     serializer = PasswordResetConfirmSerializer(data=request.data)
     if not serializer.is_valid():
@@ -411,15 +455,87 @@ def reset_password(request):
 # 8. UPDATE FOTO PROFIL
 # ==============================================================================
 
+# Konfigurasi validasi file upload
+_ALLOWED_IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
+_MAX_PROFILE_PICTURE_SIZE_MB = 5  # Maksimal 5 MB
+_MAX_PROFILE_PICTURE_SIZE_BYTES = _MAX_PROFILE_PICTURE_SIZE_MB * 1024 * 1024
+
+# MIME type yang diizinkan (diverifikasi dari konten file, bukan hanya ekstensi)
+_ALLOWED_MIME_PREFIXES = ('image/jpeg', 'image/png', 'image/gif', 'image/webp')
+
+
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser])
 def update_profile_picture(request):
+    """
+    PUT /api/me/profile-picture/
+    Upload foto profil dengan validasi ketat:
+    - Ekstensi hanya .jpg, .jpeg, .png, .gif, .webp
+    - Ukuran maksimal 5 MB
+    - MIME type diverifikasi dari konten file
+    """
+    import os
+
     user = request.user
     if 'profile_picture' not in request.FILES:
-        return Response({'error': 'Tidak ada gambar!'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': 'Tidak ada gambar yang diupload.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    user.profile_picture = request.FILES['profile_picture']
+    uploaded_file = request.FILES['profile_picture']
+
+    # --- Validasi 1: Ukuran file ---
+    if uploaded_file.size > _MAX_PROFILE_PICTURE_SIZE_BYTES:
+        return Response(
+            {'error': f'Ukuran gambar terlalu besar. Maksimal {_MAX_PROFILE_PICTURE_SIZE_MB} MB.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # --- Validasi 2: Ekstensi file ---
+    _, ext = os.path.splitext(uploaded_file.name.lower())
+    if ext not in _ALLOWED_IMAGE_EXTENSIONS:
+        return Response(
+            {'error': f'Format file tidak didukung. Gunakan: {', '.join(_ALLOWED_IMAGE_EXTENSIONS)}.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # --- Validasi 3: MIME type dari konten file menggunakan Pillow ---
+    # Pillow memverifikasi format riil dari konten file — jauh lebih andal dari imghdr
+    # dan tidak deprecated di Python 3.11+.
+    from PIL import Image, UnidentifiedImageError
+    import io
+    try:
+        file_header = uploaded_file.read()
+        uploaded_file.seek(0)  # Reset pointer setelah baca
+        img = Image.open(io.BytesIO(file_header))
+        img.verify()  # Verifikasi integritas file gambar
+        detected_type = img.format.lower() if img.format else None
+        # Normalisasi: JPEG → jpeg
+        if detected_type == 'jpeg':
+            detected_type = 'jpeg'
+        if detected_type not in ('jpeg', 'png', 'gif', 'webp'):
+            raise UnidentifiedImageError('Format tidak diizinkan')
+    except (UnidentifiedImageError, Exception) as e:
+        log_event(
+            action_category='SECURITY_ANOMALY',
+            action_type='INVALID_FILE_UPLOAD_ATTEMPT',
+            request=request,
+            user=user,
+            action_status='BLOCKED',
+            target_table='users',
+            target_id=user.id,
+            payload={
+                'filename': uploaded_file.name,
+                'claimed_ext': ext,
+                'error': str(e),
+            },
+        )
+        return Response(
+            {'error': 'File tidak dikenali sebagai gambar yang valid. Upload dibatalkan.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # --- Semua validasi lulus — simpan file ---
+    user.profile_picture = uploaded_file
     user.save(update_fields=['profile_picture'])
 
     log_event(
@@ -429,6 +545,11 @@ def update_profile_picture(request):
         user=user,
         target_table='users',
         target_id=user.id,
+        payload={
+            'filename': uploaded_file.name,
+            'size_bytes': uploaded_file.size,
+            'detected_type': detected_type,
+        },
     )
 
     return Response({
@@ -447,3 +568,48 @@ class AdminLoginView(CustomLoginView):
     Hanya bisa diakses via VLAN (Nginx layer) dan menolak user non-admin.
     """
     is_admin_portal = True
+
+
+# ==============================================================================
+# 10. LOGOUT — Proper Token Blacklisting
+# ==============================================================================
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout_view(request):
+    """
+    POST /api/auth/logout/
+    Invalidasi refresh token di server (blacklist) sehingga token yang mungkin
+    dicuri tidak bisa dipakai lagi walau access token belum expired.
+
+    Tanpa endpoint ini, logout hanya menghapus token dari localStorage —
+    tapi token tetap valid di server sampai waktu expired (60 menit).
+    """
+    from rest_framework_simplejwt.tokens import RefreshToken
+    from rest_framework_simplejwt.exceptions import TokenError
+
+    refresh_token = request.data.get('refresh')
+    if not refresh_token:
+        return Response(
+            {'error': 'Refresh token wajib disertakan untuk logout.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        token = RefreshToken(refresh_token)
+        token.blacklist()  # Masukkan ke daftar hitam — tidak bisa dipakai lagi
+
+        log_event(
+            action_category='AUTHENTICATION',
+            action_type='LOGOUT',
+            request=request,
+            user=request.user,
+            target_table='users',
+            target_id=request.user.id,
+        )
+
+        return Response({'message': 'Logout berhasil. Token diinvalidasi.'})
+
+    except TokenError as e:
+        # Token sudah expired atau sudah di-blacklist sebelumnya — tetap OK
+        return Response({'message': 'Logout berhasil.'}, status=status.HTTP_200_OK)

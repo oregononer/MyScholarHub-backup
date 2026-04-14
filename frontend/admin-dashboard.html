@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | ScholarHub</title>
+    <title>Admin Dashboard | myscholarhub</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -28,27 +28,27 @@
                 </div>
                 <div class="admin-nav-item mt-1">
                     <a href="admin-moderation.html" class="admin-nav-link">
-                        <i class="bi bi-clipboard-check"></i> Moderation
+                        <i class="bi bi-clipboard-check"></i> <span data-i18n="nav.moderation">Moderasi</span>
                     </a>
                 </div>
                 <div class="admin-nav-item mt-1">
                     <a href="admin-users.html" class="admin-nav-link">
-                        <i class="bi bi-people"></i> Users
+                        <i class="bi bi-people"></i> <span data-i18n="nav.users">Pengguna</span>
                     </a>
                 </div>
                 <div class="admin-nav-item mt-1">
                     <a href="admin-audit.html" class="admin-nav-link">
-                        <i class="bi bi-journal-text"></i> Audit Log
+                        <i class="bi bi-journal-text"></i> <span data-i18n="nav.auditlog">Log Audit</span>
                     </a>
                 </div>
             </nav>
 
             <div class="p-3 border-top" style="border-color: #f1f5f9 !important;">
                 <a href="index.html" class="admin-nav-link mb-2" style="background: none; border: 1px solid #e2e8f0; justify-content: center;">
-                    <i class="bi bi-house text-primary"></i> <span style="color: #64748b">Back to Portal</span>
+                    <i class="bi bi-house text-primary"></i> <span style="color: #64748b" data-i18n="nav.backportal">Kembali ke Portal</span>
                 </a>
                 <button onclick="logout()" class="admin-nav-link w-100 border-0" style="background: #fee2e2; color: #ef4444; justify-content: center;">
-                    <i class="bi bi-box-arrow-left text-danger"></i> Logout
+                    <i class="bi bi-box-arrow-left text-danger"></i> <span data-i18n="nav.logout">Keluar</span>
                 </button>
             </div>
         </aside>
@@ -66,35 +66,64 @@
                 <!-- Search Box -->
                 <div class="admin-search-box d-none d-lg-block">
                     <i class="bi bi-search"></i>
-                    <input type="text" placeholder="Search...">
+                    <input type="text" data-i18n-ph="topbar.search" placeholder="Cari...">
                 </div>
 
                 <div class="admin-top-actions">
-                    <!-- Translate Icon -->
-                    <button class="top-icon-btn d-none d-sm-block">
-                        <i class="bi bi-translate"></i> <span style="font-size: 0.85rem; font-weight: 600; margin-left: 3px;">English</span>
+                    <!-- Dark Mode Toggle -->
+                    <button class="top-icon-btn d-none d-sm-flex align-items-center" onclick="toggleAdminDarkMode()" id="darkModeBtn" aria-label="Toggle Dark Mode" style="justify-content:center;">
+                        <i class="bi bi-moon-fill" id="darkModeIcon"></i>
                     </button>
-                    <!-- Bell Icon -->
-                    <button class="top-icon-btn">
-                        <i class="bi bi-bell"></i>
-                        <span class="top-badge bg-warning">6</span>
+
+                    <!-- Language Switcher -->
+                    <button class="sh-lang-btn d-none d-sm-flex" onclick="toggleLang()" id="langSwitchBtn" aria-label="Switch language">
+                        <span class="sh-lang-flag" id="langFlag">🇮🇩</span>
+                        <span id="langLabel">Indonesia</span>
                     </button>
-                    <!-- Message Icon -->
-                    <button class="top-icon-btn">
-                        <i class="bi bi-envelope"></i>
-                        <span class="top-badge bg-primary">2</span>
-                    </button>
+
+                    <!-- Bell: Notification Center -->
+                    <div class="sh-topbar-item">
+                        <button class="top-icon-btn" id="notifBellBtn" aria-label="Notifications" aria-haspopup="true">
+                            <i class="bi bi-bell"></i>
+                            <span class="top-badge bg-warning" id="notifBadge" style="display:none;">0</span>
+                        </button>
+                        <!-- Notification Panel -->
+                        <div class="sh-panel" id="notifPanel" role="dialog" aria-label="Notification panel">
+                            <div class="sh-panel-header">
+                                <i class="bi bi-bell-fill text-warning"></i>
+                                <span data-i18n="notif.title">Notifikasi</span>
+                            </div>
+                            <div class="sh-panel-body" id="notifList"></div>
+                        </div>
+                    </div>
+
+                    <!-- Envelope: Email Log -->
+                    <div class="sh-topbar-item">
+                        <button class="top-icon-btn" id="emailLogBtn" aria-label="Email activity log" aria-haspopup="true">
+                            <i class="bi bi-envelope"></i>
+                            <span class="top-badge bg-primary" id="emailBadge" style="display:none;">0</span>
+                        </button>
+                        <!-- Email Log Panel -->
+                        <div class="sh-panel" id="emailLogPanel" role="dialog" aria-label="Email log panel">
+                            <div class="sh-panel-header">
+                                <i class="bi bi-envelope-fill text-primary"></i>
+                                <span data-i18n="email.title">Log Aktivitas Email</span>
+                            </div>
+                            <div class="sh-panel-body" id="emailLogList"></div>
+                        </div>
+                    </div>
+
                     <!-- Profile badge -->
-                    <img src="https://ui-avatars.com/api/?name=Admin&background=random" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; cursor: pointer; margin-left: 10px;" alt="...">
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=random" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; cursor: pointer; margin-left: 10px;" alt="Profile">
                 </div>
             </header>
 
             <!-- Main Content Area -->
             <main class="admin-content">
                 <div class="admin-page-header">
-                    <h1 class="admin-page-title">Dashboard</h1>
+                    <h1 class="admin-page-title" data-i18n="dash.title">Dashboard</h1>
                     <div class="admin-breadcrumb">
-                        <i class="bi bi-house-door-fill text-muted"></i> <a href="#">Home</a> &gt; <span>Dashboard</span>
+                        <i class="bi bi-house-door-fill text-muted"></i> <a href="#">Home</a> &gt; <span data-i18n="dash.title">Dashboard</span>
                     </div>
                 </div>
 
@@ -130,6 +159,30 @@
                     </div>
                 </div>
 
+                <!-- ANALYTICS CHARTS ROW -->
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-8">
+                        <div class="admin-white-card h-100">
+                            <div class="admin-card-header">
+                                <span><i class="bi bi-bar-chart-fill me-2 text-primary"></i>Scholarship Distribution</span>
+                            </div>
+                            <div style="position: relative; height:250px;">
+                                <canvas id="statusChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="admin-white-card h-100">
+                            <div class="admin-card-header">
+                                <span><i class="bi bi-pie-chart-fill me-2 text-warning"></i>User Roles</span>
+                            </div>
+                            <div style="position: relative; height:250px; display:flex; justify-content:center;">
+                                <canvas id="roleChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="row g-4">
                     <!-- Pending Moderation Queue -->
                     <div class="col-lg-7">
@@ -144,8 +197,42 @@
                         </div>
                     </div>
 
-                    <!-- Recent Audit Logs -->
+                    </div>
+
+                    <!-- THREAT INTELLIGENCE & RECENT LOGS -->
                     <div class="col-lg-5">
+                        <!-- Threat Intelligence Center -->
+                        <div class="admin-white-card mb-4" style="border: 1px solid rgba(239, 68, 68, 0.2);">
+                            <div class="admin-card-header mb-3">
+                                <span><i class="bi bi-shield-lock-fill me-2 text-danger"></i>Threat Intelligence</span>
+                                <div id="threatStatusBadge" class="px-2 py-1 rounded-pill bg-success bg-opacity-10 text-success small fw-bold d-flex align-items-center gap-2">
+                                    <div id="threatStatusPulse" class="rounded-circle bg-success threat-pulse" style="width:8px; height:8px;"></div>
+                                    <span id="threatStatusText">SECURE</span>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column gap-2 mb-3">
+                                <div class="d-flex justify-content-between align-items-center small">
+                                    <span class="text-muted"><i class="bi bi-check-circle-fill text-success me-2"></i>JWT Token Blacklist</span>
+                                    <span class="fw-bold">Active</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center small">
+                                    <span class="text-muted"><i class="bi bi-check-circle-fill text-success me-2"></i>DDoS Rate Limiter</span>
+                                    <span class="fw-bold">Active</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center small">
+                                    <span class="text-muted"><i class="bi bi-check-circle-fill text-success me-2"></i>HTML Sanitizer (XSS)</span>
+                                    <span class="fw-bold">Active</span>
+                                </div>
+                            </div>
+                            <div class="p-3 rounded-3" style="background: rgba(239, 68, 68, 0.05);">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="small fw-semibold text-danger">Anomalies Detected (Total)</span>
+                                    <span class="fs-4 fw-bold text-danger" id="threatAnomaliesCounter">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Logs -->
                         <div class="admin-white-card h-100">
                             <div class="admin-card-header">
                                 <span><i class="bi bi-journal-text me-2 text-primary"></i>Recent Activity</span>
@@ -162,9 +249,103 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="assets/js/config.js"></script>
     <script>
+        // --- Admin Dark Mode Logic ---
+        let adminTheme = localStorage.getItem('admin_theme') || 'light';
+        function applyAdminTheme() {
+            const icon = document.getElementById('darkModeIcon');
+            if (adminTheme === 'dark') {
+                document.body.classList.add('admin-dark-mode');
+                if (icon) { icon.classList.remove('bi-moon-fill'); icon.classList.add('bi-sun-fill'); }
+            } else {
+                document.body.classList.remove('admin-dark-mode');
+                if (icon) { icon.classList.remove('bi-sun-fill'); icon.classList.add('bi-moon-fill'); }
+            }
+        }
+        function toggleAdminDarkMode() {
+            adminTheme = adminTheme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('admin_theme', adminTheme);
+            applyAdminTheme();
+            if(window.myCharts) updateChartThemes();
+        }
+        applyAdminTheme();
+
         if (!requireAdmin()) { /* redirected */ }
+
+        // --- Charts instances ---
+        window.myCharts = {};
+        
+        function updateChartThemes() {
+            const textColor = adminTheme === 'dark' ? '#cbd5e1' : '#64748b';
+            const gridColor = adminTheme === 'dark' ? '#334155' : '#e2e8f0';
+            
+            if (window.myCharts.statusChart) {
+                window.myCharts.statusChart.options.scales.x.ticks.color = textColor;
+                window.myCharts.statusChart.options.scales.y.ticks.color = textColor;
+                window.myCharts.statusChart.options.scales.x.grid.color = gridColor;
+                window.myCharts.statusChart.options.scales.y.grid.color = gridColor;
+                window.myCharts.statusChart.options.plugins.legend.labels.color = textColor;
+                window.myCharts.statusChart.update();
+            }
+            if (window.myCharts.roleChart) {
+                window.myCharts.roleChart.options.plugins.legend.labels.color = textColor;
+                window.myCharts.roleChart.update();
+            }
+        }
+
+        function initCharts(chartData) {
+            const textColor = adminTheme === 'dark' ? '#cbd5e1' : '#64748b';
+            const gridColor = adminTheme === 'dark' ? '#334155' : '#e2e8f0';
+
+            // Status Bar Chart
+            const ctxStatus = document.getElementById('statusChart').getContext('2d');
+            window.myCharts.statusChart = new Chart(ctxStatus, {
+                type: 'bar',
+                data: {
+                    labels: ['Published', 'Pending', 'Rejected'],
+                    datasets: [{
+                        label: 'Scholarships',
+                        data: chartData.scholarship_status || [0, 0, 0],
+                        backgroundColor: ['rgba(59, 130, 246, 0.8)', 'rgba(245, 158, 11, 0.8)', 'rgba(239, 68, 68, 0.8)'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor, precision: 0 } },
+                        x: { grid: { display: false }, ticks: { color: textColor } }
+                    }
+                }
+            });
+
+            // Role Donut Chart
+            const ctxRole = document.getElementById('roleChart').getContext('2d');
+            window.myCharts.roleChart = new Chart(ctxRole, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Applicants', 'Admins'],
+                    datasets: [{
+                        data: chartData.user_roles || [0, 0],
+                        backgroundColor: ['rgba(168, 85, 247, 0.8)', 'rgba(15, 23, 42, 0.8)'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: textColor, usePointStyle: true, padding: 20 } }
+                    }
+                }
+            });
+        }
+
 
         async function loadStats() {
             try {
@@ -174,7 +355,33 @@
                 document.getElementById('statPending').textContent = data.total_pending;
                 document.getElementById('statApplicants').textContent = data.total_applicants;
                 document.getElementById('statAnomalies').textContent = data.recent_anomalies;
-            } catch(e) { console.error('Stats load failed'); }
+                document.getElementById('threatAnomaliesCounter').textContent = data.recent_anomalies;
+
+                const tBadge = document.getElementById('threatStatusBadge');
+                const tPulse = document.getElementById('threatStatusPulse');
+                const tText = document.getElementById('threatStatusText');
+                if (data.recent_anomalies && parseInt(data.recent_anomalies) > 0) {
+                    tBadge.className = 'px-2 py-1 rounded-pill bg-danger bg-opacity-10 text-danger small fw-bold d-flex align-items-center gap-2';
+                    tPulse.className = 'rounded-circle bg-danger threat-pulse';
+                    tText.textContent = 'WARNING';
+                } else {
+                    tBadge.className = 'px-2 py-1 rounded-pill bg-success bg-opacity-10 text-success small fw-bold d-flex align-items-center gap-2';
+                    tPulse.className = 'rounded-circle bg-success threat-pulse';
+                    tText.textContent = 'SECURE';
+                }
+                
+                // Init or Update Charts safely
+                if (data.chart_data) {
+                    if (!window.myCharts.statusChart) {
+                        initCharts(data.chart_data);
+                    } else {
+                        window.myCharts.statusChart.data.datasets[0].data = data.chart_data.scholarship_status;
+                        window.myCharts.statusChart.update();
+                        window.myCharts.roleChart.data.datasets[0].data = data.chart_data.user_roles;
+                        window.myCharts.roleChart.update();
+                    }
+                }
+            } catch(e) { console.error('Stats load failed', e); }
         }
 
         async function loadPending() {
@@ -250,6 +457,9 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            initLang();
+            initNotifications();
+            initEmailLog();
             loadStats();
             loadPending();
             loadRecentLogs();

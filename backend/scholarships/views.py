@@ -3,6 +3,7 @@ Scholarship Views — Public Zone, Applicant Zone, Admin Zone.
 Setiap zone memiliki permission dan serializer berbeda.
 """
 import requests
+from django.db.models import Case, When, Value, BooleanField
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets, permissions, generics
 from rest_framework.decorators import api_view, permission_classes, throttle_classes, action
@@ -22,6 +23,7 @@ from .serializers import (
     AdminScholarshipSerializer,
     ModerationActionSerializer,
 )
+from .email_notifications import send_approval_notification, send_rejection_notification
 from users.audit import log_event
 
 
@@ -91,6 +93,18 @@ class PublicScholarshipListView(generics.ListAPIView):
         coverage = self.request.query_params.get('coverage_type')
         search = self.request.query_params.get('q')
 
+        user = self.request.user
+        has_profile = user and user.is_authenticated and hasattr(user, 'applicant_profile') and user.applicant_profile.education_level
+
+        if has_profile:
+            qs = qs.annotate(
+                is_match=Case(
+                    When(education_level=user.applicant_profile.education_level, then=Value(True)),
+                    default=Value(False),
+                    output_field=BooleanField(),
+                )
+            )
+
         if category:
             qs = qs.filter(category__slug=category)
         if education:
@@ -100,6 +114,8 @@ class PublicScholarshipListView(generics.ListAPIView):
         if search:
             qs = qs.filter(title__icontains=search)
 
+        if has_profile:
+            return qs.order_by('-is_match', 'deadline')
         return qs.order_by('deadline')
 
 
@@ -185,8 +201,30 @@ def submission_tracking(request, tracking_id):
     """
     GET /api/submissions/{uuid}/status/ — Cek status pengajuan.
     Wajib login. Rate limit: 10 req/menit.
+    Anti-IDOR: hanya pemilik submission yang bisa melihat status tracking-nya.
     """
     scholarship = get_object_or_404(Scholarship, id=tracking_id)
+
+    # Anti-IDOR: Pastikan scholarship ini milik user yang sedang login
+    if scholarship.created_by != request.user:
+        log_event(
+            action_category='SECURITY_ANOMALY',
+            action_type='IDOR_ATTEMPT_TRACKING',
+            request=request,
+            user=request.user,
+            action_status='BLOCKED',
+            target_table='scholarships',
+            target_id=tracking_id,
+            payload={
+                'attempted_by': str(request.user.id),
+                'owner': str(scholarship.created_by_id) if scholarship.created_by_id else 'unknown',
+            },
+        )
+        return Response(
+            {'error': 'Kamu tidak memiliki akses ke tracking ID ini.'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
     serializer = SubmissionTrackingSerializer(scholarship)
     return Response(serializer.data)
 
@@ -411,9 +449,23 @@ class AdminScholarshipViewSet(viewsets.ModelViewSet):
             },
         )
 
+        # Kirim notifikasi email ke provider — fail-safe (tidak rollback jika gagal)
+        def _on_email_fail(error):
+            log_event(
+                action_category='SYSTEM',
+                action_type='EMAIL_SEND_FAILED',
+                request=request,
+                action_status='FAILED',
+                target_table='scholarships',
+                target_id=scholarship.id,
+                payload={'event': 'SCHOLARSHIP_APPROVED', 'error': error},
+            )
+        email_sent = send_approval_notification(scholarship, audit_callback=_on_email_fail)
+
         return Response({
             'message': f'Beasiswa "{scholarship.title}" berhasil di-approve!',
             'link_check': link_check,
+            'email_sent': email_sent,
         })
 
     @action(detail=True, methods=['post'])
@@ -447,11 +499,23 @@ class AdminScholarshipViewSet(viewsets.ModelViewSet):
             },
         )
 
-        # TODO: Kirim email ke provider_email (implementasi SMTP saat production)
+        # Kirim notifikasi email ke provider — fail-safe (tidak rollback jika gagal)
+        def _on_email_fail(error):
+            log_event(
+                action_category='SYSTEM',
+                action_type='EMAIL_SEND_FAILED',
+                request=request,
+                action_status='FAILED',
+                target_table='scholarships',
+                target_id=scholarship.id,
+                payload={'event': 'SCHOLARSHIP_REJECTED', 'error': error},
+            )
+        email_sent = send_rejection_notification(scholarship, audit_callback=_on_email_fail)
 
         return Response({
             'message': f'Beasiswa "{scholarship.title}" ditolak.',
             'rejection_reason': scholarship.rejection_reason,
+            'email_sent': email_sent,
         })
 
     @action(detail=True, methods=['post'])
@@ -504,17 +568,28 @@ def admin_stats(request):
     """GET /api/admin/stats/ — Dashboard stats untuk Admin."""
     from users.models import CustomUser, AuditLog
 
+    total_published = Scholarship.objects.filter(status='PUBLISHED').count()
+    total_pending = Scholarship.objects.filter(status='PENDING').count()
+    total_rejected = Scholarship.objects.filter(status='REJECTED').count()
+    
+    total_applicants = CustomUser.objects.filter(role='APPLICANT').count()
+    total_admins = CustomUser.objects.filter(role='ADMIN').count()
+
     return Response({
         'total_scholarships': Scholarship.objects.count(),
-        'total_published': Scholarship.objects.filter(status='PUBLISHED').count(),
-        'total_pending': Scholarship.objects.filter(status='PENDING').count(),
-        'total_rejected': Scholarship.objects.filter(status='REJECTED').count(),
-        'total_applicants': CustomUser.objects.filter(role='APPLICANT').count(),
-        'total_admins': CustomUser.objects.filter(role='ADMIN').count(),
+        'total_published': total_published,
+        'total_pending': total_pending,
+        'total_rejected': total_rejected,
+        'total_applicants': total_applicants,
+        'total_admins': total_admins,
         'total_categories': Category.objects.filter(is_active=True).count(),
         'recent_anomalies': AuditLog.objects.filter(
             action_category='SECURITY_ANOMALY'
         ).count(),
+        'chart_data': {
+            'scholarship_status': [total_published, total_pending, total_rejected],
+            'user_roles': [total_applicants, total_admins]
+        }
     })
 
 

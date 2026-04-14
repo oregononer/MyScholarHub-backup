@@ -8,7 +8,7 @@ body { background-color: #f8f9fc; font-family: 'Poppins', sans-serif; }
 /* --- HERO SECTION --- */
 .hero-section {
     /* Kita pertajam warnanya: Biru Terang -> Ungu Terang -> Ungu Pekat */
-    background: linear-gradient(135deg, #0056ff 0%, #7b2cbf 60%, #4a00e0 100%);
+    background: radial-gradient(circle at top right, rgba(123, 44, 191, 0.4), #0B0F19 60%);
     color: white;
     padding: 120px 0 80px 0;
     border-bottom-left-radius: 5% 10%;
@@ -47,9 +47,9 @@ body { background-color: #f8f9fc; font-family: 'Poppins', sans-serif; }
 .step-content { position: relative; z-index: 1; }
 
 /* --- FAQ ACCORDION --- */
-.accordion-item { border: none; margin-bottom: 15px; border-radius: 10px !important; box-shadow: 0 2px 10px rgba(0,0,0,0.03); overflow: hidden; }
-.accordion-button { font-weight: 600; padding: 20px; }
-.accordion-button:not(.collapsed) { background-color: #f8f9fa; color: #6f42c1; box-shadow: none; }
+.accordion-item { border: 1px solid rgba(255,255,255,0.05) !important; margin-bottom: 15px; border-radius: 12px !important; box-shadow: 0 8px 32px rgba(0,0,0,0.2) !important; background: rgba(255,255,255,0.03) !important; backdrop-filter: blur(10px); overflow: hidden; color: #fff; }
+.accordion-button { font-weight: 600; padding: 20px; background: transparent !important; color: #f1f5f9 !important; box-shadow: none !important; }
+.accordion-button:not(.collapsed) { background: rgba(255, 255, 255, 0.05) !important; color: #a855f7 !important; box-shadow: none !important; }
 .accordion-button:focus { box-shadow: none; }
 
 /* --- CTA & FOOTER --- */
@@ -65,24 +65,16 @@ body { background-color: #f8f9fc; font-family: 'Poppins', sans-serif; }
 /* --- BACKGROUND WARNA PUDAR UNTUK SETIAP SECTION --- */
 
 /* Cream pudar untuk Scholarship Benefits */
-#benefits {
-    background-color: #fff9f2; 
-}
+#benefits { background-color: transparent; }
 
 /* Ungu pudar untuk Application Process */
-#process {
-    background-color: #f8f5ff; 
-}
+#process { background-color: transparent; }
 
 /* Pink pudar untuk Testimonials (What Our Scholars Say) */
-#testimonials {
-    background-color: #fdf2f8; 
-}
+#testimonials { background-color: transparent; }
 
 /* Pastikan kartu (card) tetap berwarna putih bersih agar menonjol dari background pudar */
-.custom-card {
-    background-color: #ffffff;
-}
+/* .custom-card background handled above */
 
 /* --- HALAMAN AUTENTIKASI (LOGIN & REGISTER) --- */
 .auth-bg {
@@ -234,3 +226,225 @@ body { background-color: #f8f9fc; font-family: 'Poppins', sans-serif; }
 /* White Card Components */
 .admin-white-card { background: #ffffff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: none; padding: 25px; }
 .admin-card-header { font-weight: 700; color: #334155; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+
+/* ── Language Switcher ──────────────────────────────────────────── */
+.sh-lang-btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 6px 12px; border-radius: 20px;
+    border: 1px solid #e2e8f0; background: #f8fafc;
+    color: #475569; font-size: 0.82rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; font-family: 'Poppins', sans-serif;
+}
+.sh-lang-btn:hover { background: #eff6ff; border-color: #bfdbfe; color: #3b82f6; }
+.sh-lang-flag { font-size: 1rem; line-height: 1; }
+
+/* ── Shared Dropdown Panel ───────────────────────────────────────── */
+.sh-panel {
+    position: absolute; top: calc(100% + 10px); right: 0;
+    width: 320px; background: #fff;
+    border-radius: 14px; border: 1px solid #e2e8f0;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.12);
+    z-index: 2000;
+    /* hidden by default */
+    opacity: 0; transform: translateY(-8px);
+    pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.sh-panel.sh-panel-open {
+    opacity: 1; transform: translateY(0); pointer-events: all;
+}
+.sh-panel-header {
+    padding: 14px 18px 10px;
+    font-weight: 700; font-size: 0.9rem; color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex; align-items: center; gap: 8px;
+}
+.sh-panel-body {
+    max-height: 340px; overflow-y: auto; padding: 8px 0;
+}
+.sh-panel-body::-webkit-scrollbar { width: 4px; }
+.sh-panel-body::-webkit-scrollbar-track { background: transparent; }
+.sh-panel-body::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+
+/* ── Notification / Email Items ──────────────────────────────────── */
+.sh-notif-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 11px 18px; text-decoration: none; color: inherit;
+    transition: background 0.15s;
+}
+.sh-notif-item:hover { background: #f8fafc; }
+.sh-notif-icon {
+    width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+}
+.sh-notif-body { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.sh-notif-title { font-size: 0.83rem; font-weight: 600; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sh-notif-sub   { font-size: 0.75rem; color: #94a3b8; }
+.sh-email-status { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.03em; margin-top: 2px; }
+
+.sh-panel-empty   { font-size: 0.82rem; color: #94a3b8; text-align: center; padding: 24px 0; margin: 0; }
+.sh-panel-loading { font-size: 0.82rem; color: #94a3b8; text-align: center; padding: 16px 0; margin: 0; }
+
+/* Wrapper for topbar icons that have a dropdown */
+.sh-topbar-item { position: relative; }
+
+/* --- SCOPED DARK THEME FOR INDEX --- */
+body.theme-dark {
+    background-color: #0B0F19;
+    color: #f1f5f9;
+    overflow-x: hidden;
+}
+.theme-dark .text-muted { color: rgba(255,255,255,0.6) !important; }
+.theme-dark .bg-white { background-color: transparent !important; }
+.theme-dark .card-scholarship h5 { color: #fff; }
+.theme-dark .text-dark { color: #fff !important; }
+
+/* Dark form controls for Glassmorphism filters */
+.theme-dark .form-control-custom {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    backdrop-filter: blur(10px);
+}
+.theme-dark .form-control-custom:focus {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(168, 85, 247, 0.5); /* Glowing effect */
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
+    color: #fff;
+}
+.theme-dark .form-control-custom::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+/* Select element options need different background because browsers don't do translucent options well */
+.theme-dark select.form-control-custom option {
+    background: #0B0F19; /* Solid deep Space background */
+    color: #fff;
+}
+
+
+.theme-dark .custom-card {
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px 0 rgba(0,0,0,0.3);
+    background: rgba(255, 255, 255, 0.03) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 30px;
+    transition: all 0.3s ease;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    color: #f1f5f9;
+}
+.theme-dark .custom-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(168, 85, 247, 0.15);
+    border-color: rgba(168, 85, 247, 0.3);
+}
+
+.theme-dark .icon-box { box-shadow: 0 0 20px rgba(255,255,255,0.1); }
+.theme-dark .custom-card:hover .icon-box { transform: scale(1.1); transition: transform 0.3s; }
+
+/* Utilities */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* --- AMBIENT GLOW (Deep Space Effects) --- */
+.ambient-layer {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    overflow: hidden; z-index: -1;
+    pointer-events: none;
+}
+.ambient-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.6;
+    animation: drift 20s infinite alternate ease-in-out;
+}
+.orb-1 { width: 500px; height: 500px; background: rgba(123, 44, 191, 0.4); top: -10%; left: -10%; }
+.orb-2 { width: 600px; height: 600px; background: rgba(15, 23, 42, 0.8); top: 40%; right: -20%; animation-duration: 25s; filter: blur(150px); }
+.orb-3 { width: 400px; height: 400px; background: rgba(59, 130, 246, 0.2); bottom: -10%; left: 30%; animation-duration: 18s; }
+.orb-orange { width: 450px; height: 450px; background: rgba(234, 88, 12, 0.2); top: 20%; right: 10%; filter: blur(140px); }
+
+@keyframes drift {
+    0% { transform: translateY(0) translateX(0) scale(1); }
+    100% { transform: translateY(-50px) translateX(50px) scale(1.1); }
+}
+
+/* --- ANIMATIONS --- */
+.animate-float {
+    animation: floating 6s ease-in-out infinite;
+}
+@keyframes floating {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+    100% { transform: translateY(0px); }
+}
+
+/* --- THEME DARK STRICT OVERRIDES (FAQ Accordion) --- */
+.theme-dark .accordion {
+    --bs-accordion-bg: rgba(255, 255, 255, 0.03);
+    --bs-accordion-color: rgba(255, 255, 255, 0.8);
+    --bs-accordion-border-color: rgba(255, 255, 255, 0.1);
+    --bs-accordion-btn-color: #fff;
+    --bs-accordion-btn-bg: rgba(255, 255, 255, 0.05);
+    --bs-accordion-btn-icon-width: 1.25rem;
+    --bs-accordion-btn-icon-transform: rotate(-180deg);
+    --bs-accordion-active-color: #ff7f50;
+    --bs-accordion-active-bg: rgba(255, 127, 80, 0.1);
+}
+.theme-dark .accordion-item {
+    border-radius: 12px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(20, 25, 40, 0.5);
+    backdrop-filter: blur(8px);
+    overflow: hidden;
+}
+.theme-dark .accordion-button {
+    font-weight: 600;
+    box-shadow: none !important;
+}
+.theme-dark .accordion-button:not(.collapsed) {
+    box-shadow: inset 0 calc(-1 * var(--bs-accordion-border-width)) 0 var(--bs-accordion-border-color) !important;
+}
+
+/* --- ADMIN DARK MODE (Premium Night Shift) --- */
+body.admin-dark-mode .admin-layout-wrapper { background-color: #0f172a; }
+body.admin-dark-mode .admin-sidebar { background: #1e293b; border-color: #334155; }
+body.admin-dark-mode .admin-topbar { background: #1e293b; border-bottom: 1px solid #334155; box-shadow: none; }
+body.admin-dark-mode .admin-white-card { background: #1e293b; border: 1px solid #334155; }
+body.admin-dark-mode .admin-brand { color: #f8fafc; }
+body.admin-dark-mode .admin-profile-name { color: #f8fafc; }
+body.admin-dark-mode .admin-profile-role { color: #94a3b8; }
+body.admin-dark-mode .admin-nav-link { color: #cbd5e1; }
+body.admin-dark-mode .admin-nav-link:hover, body.admin-dark-mode .admin-nav-link.active { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+body.admin-dark-mode .admin-page-title { color: #f8fafc; }
+body.admin-dark-mode .admin-card-header { color: #f8fafc; border-color: #334155; }
+body.admin-dark-mode .admin-search-box input { background: #0f172a; border-color: #334155; color: #f8fafc; }
+body.admin-dark-mode .admin-search-box input:focus { box-shadow: 0 0 0 3px rgba(59,130,246,0.3); border-color: #3b82f6; }
+body.admin-dark-mode .sh-lang-btn { background: #0f172a; border-color: #334155; color: #cbd5e1; }
+body.admin-dark-mode .sh-lang-btn:hover { border-color: #60a5fa; color: #60a5fa; }
+body.admin-dark-mode .text-dark { color: #f8fafc !important; }
+body.admin-dark-mode .text-muted { color: #94a3b8 !important; }
+body.admin-dark-mode .btn-light { background: #334155; border-color: #475569; color: #f8fafc; }
+body.admin-dark-mode .btn-light:hover { background: #475569; border-color: #64748b; }
+body.admin-dark-mode [style*="background: #f8fafc"] { background: #0f172a !important; border-color: #334155 !important; }
+
+/* Threat Intelligence Panel Pulse */
+.threat-pulse {
+    animation: pulse-ring 2s infinite;
+}
+@keyframes pulse-ring {
+    0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(74, 222, 128, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+}
+

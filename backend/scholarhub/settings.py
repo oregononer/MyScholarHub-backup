@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',  # Aktifkan JWT blacklist (proper logout)
     # Local apps
     'users',
     'scholarships',
@@ -193,12 +194,14 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '60/minute',      # Guest: 60 req/menit
-        'user': '120/minute',     # Authenticated: 120 req/menit
-        'login': '5/minute',      # Login: 5 per 15 menit (custom)
-        'register': '3/hour',     # Register: 3 per jam
-        'submission': '5/hour',   # Provider submission: 5 per jam
-        'tracking': '10/minute',  # Tracking status: 10 per menit
+        'anon': '60/minute',           # Guest: 60 req/menit
+        'user': '120/minute',          # Authenticated: 120 req/menit
+        'login': '5/minute',           # Login: 5 per menit
+        'register': '3/hour',          # Register: 3 per jam
+        'submission': '5/hour',        # Provider submission: 5 per jam
+        'tracking': '10/minute',       # Tracking status: 10 per menit
+        'forgot_password': '3/hour',   # Reset password request: 3 per jam (anti-email-bombing)
+        'reset_password': '5/hour',    # Token reset: 5 per jam (anti-brute-force)
     },
 }
 
@@ -208,7 +211,9 @@ SIMPLE_JWT = {
     'SIGNING_KEY': SECRET_KEY,  # Saat production: gunakan JWT_SIGNING_KEY dari Vault
     'AUTH_HEADER_TYPES': ('Bearer',),
     'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
+    'BLACKLIST_AFTER_ROTATION': True,  # Refresh token lama langsung diblacklist
+    # Token blacklist aktif — memerlukan 'rest_framework_simplejwt.token_blacklist'
+    # di INSTALLED_APPS dan migration sudah dijalankan
 }
 
 
@@ -324,3 +329,27 @@ LOGGING = {
         },
     },
 }
+
+
+# ==============================================================================
+# 13. EMAIL CONFIGURATION
+# ==============================================================================
+# Dev mode: Email dicetak ke console (tidak perlu SMTP sungguhan)
+# Production: Set env vars EMAIL_HOST, EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD
+
+if DEBUG:
+    # --- LOCALHOST DEV MODE ---
+    # Email tidak benar-benar dikirim — ditampilkan di terminal Django
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    # --- PRODUCTION MODE ---
+    # Semua konfigurasi diambil dari environment variables (tidak ada hardcode)
+    EMAIL_BACKEND    = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST       = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+    EMAIL_PORT       = int(os.environ.get('EMAIL_PORT', 587))
+    EMAIL_USE_TLS    = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
+    EMAIL_HOST_USER  = os.environ.get('EMAIL_HOST_USER', '')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@myscholarhub.id')
+EMAIL_SUBJECT_PREFIX = '[myscholarhub] '
